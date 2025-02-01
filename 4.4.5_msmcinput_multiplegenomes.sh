@@ -234,6 +234,39 @@ sbatch --account=mcnew \
 ~/programs/msmc2_scripts/msmc_2_generateInput_multiInd.sh `echo MABO_NABO.txt` MABO_NABO
 
 # Submitted batch job 3694141
+# Run MABO NABO msmc
+less ~/programs/msmc2_scripts/msmc_3_runMSMC.sh
+
+for i in `cat MABO_NABO.txt`
+do echo $i
+IND=$i
+    for s in `cat SCAFFOLDS.txt`
+        do echo $s
+        ls /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/input/msmc_input.${IND}.${s}.txt >> /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/input/SCAFS_INPUT_MABO_NABO
+    done
+done
+
+
+
+#!/bin/sh
+
+MSMC_INPUT=`cat /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/input/SCAFS_INPUT_MABO_NABO`
+~/programs/msmc_2.0.0_linux64bit  -t 4 -p 1*2+15*1+1*2 -i 100 -I 0,0,0,0,1,1,1,1,1 -o /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/MABO_NABO $MSMC_INPUT
+
+/programs/msmc_2.0.0_linux64bit -t 16 -p 1*2+15*1+1*2 -i 100 -o $MSMC_OUTPUT -I 0,1 $MSMC_INPUT
+
+sbatch --account=mcnew \
+--job-name=msmc_run.MABONABO \
+--partition=standard \
+--mail-type=ALL \
+--output=slurm_output/msmc_run.MABONABO.%j \
+--nodes=1 \
+--ntasks-per-node=8 \
+--time=48:00:00 \
+--mem=50G \
+msmc_mabonabo.sh
+
+Submitted batch job 12076503
 
 # estimate cross coalescence
 # ~/programs/msmc_2.0.0_linux64bit -t 16 -p $P_PAR -i 100 -o $MSMC_OUTPUT -I 0,1 $MSMC_INPUT
@@ -243,11 +276,11 @@ msmc2 -I 4,5,6,7 -o within_pop2 `cat INPUT_LIST.txt`
 msmc2 -P 0,0,0,0,1,1,1,1 -o between_pop1-2 `cat INPUT_LIST.txt`
 
 python combineCrossCoal.py \
-    between_pop1-2.final.txt \
-    within_pop1.final.txt \
-    within_pop2.final.txt > combined_pop1-2.final.txt
+    /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/par_2/between_pop1-2.final.txt \
+    /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/par_2/msmc_output.msmc_MABO_012825.final.txt \
+    /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/par_2/msmc_output.msmc_NABO_012825.final.txt > combined_pop1-2.final.txt
 
-combineCrossCoal.py MABO_NABO.msmc2.final.txt $DIR/MABO.msmc2.final.txt \
+~/programs/msmc-tools/combineCrossCoal.py MABO_NABO.msmc2.final.txt $DIR/MABO.msmc2.final.txt \
     NABO.msmc2.final.txt > MABO_NABO.combined.msmc2.final.txt
 
 
