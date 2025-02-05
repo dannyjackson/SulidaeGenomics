@@ -261,12 +261,12 @@ sbatch --account=mcnew \
 --mail-type=ALL \
 --output=slurm_output/msmc_run.MABONABO.%j \
 --nodes=1 \
---ntasks-per-node=8 \
---time=48:00:00 \
---mem=50G \
+--ntasks-per-node=16 \
+--time=100:00:00 \
+--mem=100G \
 msmc_mabonabo.sh
 
-Submitted batch job 12076503
+Submitted batch job 12086245
 
 # estimate cross coalescence
 # ~/programs/msmc_2.0.0_linux64bit -t 16 -p $P_PAR -i 100 -o $MSMC_OUTPUT -I 0,1 $MSMC_INPUT
