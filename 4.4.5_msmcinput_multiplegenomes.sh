@@ -251,22 +251,22 @@ done
 #!/bin/sh
 
 MSMC_INPUT=`cat /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/input/SCAFS_INPUT_MABO_NABO`
-~/programs/msmc_2.0.0_linux64bit  -t 16 -p 1*2+15*1+1*2 -i 100 -I 0,0,0,0,1,1,1,1,1 -o /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/MABO_NABO $MSMC_INPUT
+~/programs/msmc_2.0.0_linux64bit  -t 2000 -p 1*2+15*1+1*2 -i 100 -I 0,0,0,0,1,1,1,1,1 -o /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/output/MABO_NABO $MSMC_INPUT
 
 /programs/msmc_2.0.0_linux64bit -t 16 -p 1*2+15*1+1*2 -i 100 -o $MSMC_OUTPUT -I 0,1 $MSMC_INPUT
 
 sbatch --account=mcnew \
 --job-name=msmc_run.MABONABO \
---partition=standard \
+--partition=gpu_standard \
 --mail-type=ALL \
 --output=slurm_output/msmc_run.MABONABO.%j \
 --nodes=1 \
---ntasks-per-node=16 \
---time=100:00:00 \
---mem=100G \
+--ntasks-per-node=10 \
+--gres=gpu:4 \
+--time=50:00:00 \
 msmc_mabonabo.sh
 
-Submitted batch job 12086245
+Submitted batch job 12115143
 
 # estimate cross coalescence
 # ~/programs/msmc_2.0.0_linux64bit -t 16 -p $P_PAR -i 100 -o $MSMC_OUTPUT -I 0,1 $MSMC_INPUT
