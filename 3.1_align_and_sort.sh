@@ -1,165 +1,148 @@
 # align and sort 
-#!/bin/bash
+## download Northern Gannett (Morus bassanus) reference genome 
+module load sratoolkit/3.1.1
 
-#SBATCH --job-name=aligning
-#SBATCH --ntasks=12
-#SBATCH --nodes=1             
-#SBATCH --time=240:00:00   
+~/programs/datasets download genome accession GCA_031468815.1 --include gff3,rna,cds,protein,genome,seq-report
+
+unzip ncbi_dataset.zip 
+
+
+#!/bin/bash
+#SBATCH --job-name=align
 #SBATCH --partition=standard
 #SBATCH --account=mcnew
-#SBATCH --mem-per-cpu=1000gb
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=12            # threads per sample
+#SBATCH --mem=64G                     # ~5G/core is plenty for bwa-mem2
+#SBATCH --time=48:00:00
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=dannyjackson@arizona.edu
-#SBATCH --output=output.aligning.%j
+#SBATCH --output=slurm_output/align.%A_%a.out
+
+set -euo pipefail
+
+module load bwa
+module load samtools
+module list
+
+LIST=/xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt
+REF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna
+TRIM=/xdisk/mcnew/dannyjackson/sulidae/raw_sequences/trimming/trimmedseq
+OUT=/xdisk/mcnew/dannyjackson/sulidae/bamfiles
+SCRATCH="${TMPDIR:-/scratch/$USER/$SLURM_JOB_ID}"
+mkdir -p "$OUT" "$SCRATCH" slurm_output
+
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')
+echo "[$(date)] aligning $SAMPLE with ${SLURM_CPUS_PER_TASK} threads"
+
+# Use node-local scratch for sort temp; then move result
+TMPDIR="$SCRATCH"
+
+bwa mem -t ${SLURM_CPUS_PER_TASK} /xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/trimming/trimmedseq/${SAMPLE}_trimmed_1P.fq.gz \
+/xdisk/mcnew/dannyjackson/sulidae/raw_sequences/trimming/trimmedseq/${SAMPLE}_trimmed_2P.fq.gz | samtools sort -@ $((SLURM_CPUS_PER_TASK-2)) -m 3G -T "$SCRATCH/${SAMPLE}.tmp" -o "$OUT/${SAMPLE}.bam" -
+
+samtools index -@ 2 "$OUT/${SAMPLE}.bam"
+echo "[$(date)] done $SAMPLE"
+
+
+sbatch --array=1-34%10 align.sh
+
+
+#!/bin/bash
+#SBATCH --job-name=sort
+#SBATCH --partition=standard
+#SBATCH --account=mcnew
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=64G
+#SBATCH --time=48:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm_output/sort.%A_%a.out
+
+
+set -euo pipefail
 
 module load bwa
 module load picard
 module load samtools
 module load parallel
 module list
- 
-cd /xdisk/mcnew/dannyjackson/sulidae/
 
-echo "Job started on `date`"
+LIST=/xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt
+OUT=/xdisk/mcnew/dannyjackson/sulidae/bamfiles
+SCRATCH="${TMPDIR:-/scratch/$USER/$SLURM_JOB_ID}"
+mkdir -p "$OUT" "$SCRATCH" slurm_output
 
-booby=(SRR19149590 SRR19149589 SRR19149578 SRR19149567 SRR19149562 SRR19149561 SRR19149560 SRR19149559 SRR19149558 SRR19149557 SRR19149588 SRR19149587 SRR19149586 SRR19149585 SRR19149584 SRR19149583 SRR19149582 SRR19149581 SRR19149580 SRR19149579 SRR19149577 SRR19149576 SRR19149575 SRR19149574 SRR19149573 SRR19149572 SRR19149571 SRR19149570 SRR19149569 SRR19149568 SRR19149566 SRR19149565 SRR19149564 SRR19149563)
 
-# echo "indexing reference">>bwa_alignment_log.txt
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')
+echo "[$(date)] aligning $SAMPLE with ${SLURM_CPUS_PER_TASK} threads"
 
-# bwa index /xdisk/mcnew/dannyjackson/sulidae/angsd/refgenome/ncbi_dataset/data/GCF_963921805.1/GCF_963921805.1_bPhaCar2.1_genomic.fna
+# Use node-local scratch for sort temp; then move result
+TMPDIR="$SCRATCH"
 
-echo "Aligning fastas"
-parallel -j 12 -a /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt 'C={}; bwa mem -t 12 /xdisk/mcnew/dannyjackson/sulidae/angsd/refgenome/ncbi_dataset/data/GCF_963921805.1/GCF_963921805.1_bPhaCar2.1_genomic.fna /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/trimming/trimmedseq/${C}_trimmed_1P.fq.gz \
-/xdisk/mcnew/dannyjackson/sulidae/raw_sequences/trimming/trimmedseq/${C}_trimmed_2P.fq.gz | \
-samtools view -b -o /xdisk/mcnew/dannyjackson/sulidae/bamfiles/${C}.bam -S' 
+samtools sort -@ 2 "$OUT/${SAMPLE}.bam" -o "$OUT/${SAMPLE}.sorted.bam"
+samtools index -@ 2 "$OUT/${SAMPLE}.sorted.bam"
 
-# sbatch align.sh 
+echo "[$(date)] done $SAMPLE"
+
+sbatch --array=1-34%10 sort.sh
+
 
 
 #!/bin/bash
-
-#SBATCH --job-name=sorting
-#SBATCH --ntasks=12
-#SBATCH --nodes=1             
-#SBATCH --time=240:00:00   
+#SBATCH --job-name=addreadgroups
 #SBATCH --partition=standard
 #SBATCH --account=mcnew
-#SBATCH --mem-per-cpu=1000gb
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=64G
+#SBATCH --time=48:00:00
 #SBATCH --mail-type=ALL
-#SBATCH --mail-user=dannyjackson@arizona.edu
-#SBATCH --output=output.sorting.%j
+#SBATCH --output=slurm_output/addreadgroups.%A_%a.out
 
-module load bwa
+set -euo pipefail
+
 module load picard
 module load samtools
-module load parallel
-module list
+
+LIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/allsamplecodes.txt
+IN=/xdisk/mcnew/dannyjackson/sulidae/bamfiles
+OUT=/xdisk/mcnew/dannyjackson/sulidae/bamfiles
+SCRATCH="${TMPDIR:-/scratch/$USER/$SLURM_JOB_ID}"
+mkdir -p "$OUT" "$SCRATCH" slurm_output
 
 
-echo "Sorting bams"
+SAMPLE=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')
+echo "[$(date)] aligning $SAMPLE with ${SLURM_CPUS_PER_TASK} threads"
 
-parallel -j 12 -a /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt 'C={}; samtools sort /xdisk/mcnew/dannyjackson/sulidae/bamfiles/${C}.bam -o /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${C}.sorted.bam' 
+# Use node-local scratch for sort temp; then move result
+TMPDIR="$SCRATCH"
 
-for job in {3418931..3418964}; do
-    scancel $job
-done
-
-for i in `cat /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt`;
-	do echo $i
-	IND=$i
-	sbatch --account=mcnew \
-	--job-name=sort_${i} \
-    --partition=standard \
-	--mail-type=ALL \
-	--output=output.sort_${i}.%j \
-	--nodes=1 \
-	--ntasks-per-node=12 \
-	--time=50:00:00 \
-	/xdisk/mcnew/dannyjackson/sulidae/sort.sh $i
-done
-
-#!/bin/bash
-IND=$1
-module load samtools
-samtools sort /xdisk/mcnew/dannyjackson/sulidae/bamfiles/${IND}.bam -o /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}.sorted.bam
-
-for i in `cat /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_SRA.txt`;
-	do echo $i
-	IND=$i
-	sbatch --account=mcnew \
-	--job-name=RG_MD_index_${i} \
-    --partition=standard \
-	--mail-type=ALL \
-	--output=output.RG_MD_index_${i}.%j \
-	--nodes=1 \
-	--ntasks-per-node=12 \
-	--time=50:00:00 \
-	/xdisk/mcnew/dannyjackson/sulidae/RG_MD_index.sh $i
-done
-
-#!/bin/bash
-IND=$1
-module load picard
-module load samtools
-module load parallel
-
-mkdir /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}
-
-picard AddOrReplaceReadGroups \
-I=/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}.sorted.bam \
-O=/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}/${IND}.sorted_RGadded.bam \
-RGLB=lib1 RGPL=illumina RGPU=unit1 RGSM=${IND}
+# picard AddOrReplaceReadGroups \
+# I=${IN}/${SAMPLE}.sorted.bam \
+# O=${IN}/${SAMPLE}.sorted_RGadded.bam \
+# RGLB=lib1 RGPL=illumina RGPU=unit1 RGSM=${SAMPLE}
 
 picard MarkDuplicates \
-I=/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}/${IND}.sorted_RGadded.bam \
-O=/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}/${IND}.sorted_RGadded_dupmarked.bam \
-M=/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}/${IND}.duplicate.metrics.txt
+I=${IN}/${SAMPLE}.sorted_RGadded.bam \
+O=${OUT}/${SAMPLE}.sorted_RGadded_dupmarked.bam \
+M=${OUT}/metrics/${SAMPLE}.duplicate.metrics.txt
 
-samtools index \
-/xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/${IND}/${IND}.sorted_RGadded_dupmarked.bam
+samtools index ${OUT}/${SAMPLE}.sorted_RGadded_dupmarked.bam
 
-# sbatch sort.sh 
-# 11124640 - 11124673
-
-
+# SUBMIT: sbatch --array=1-34%10 readgroups.sh
+# SUBMIT: sbatch --array=1-34%10 markdups.sh
 
 # rename sorted bams using species codes and sample numbers
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149590.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO101.sorted.bam
 
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149589.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO102.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149578.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO103.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149567.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO104.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149562.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO105.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149561.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/RFBO106.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149560.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BRBO201.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149559.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BRBO202.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149558.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BRBO203.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149557.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BRBO204.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149588.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BRBO205.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149587.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/MABO301.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149586.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/MABO302.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149585.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/MABO304.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149584.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/MABO305.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149583.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/MABO306.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149582.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO401.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149581.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO402.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149580.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO403.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149579.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO404.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149577.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO405.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149576.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/NABO406.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149575.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO501.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149574.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO502.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149573.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO503.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149572.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO504.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149571.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO505.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149570.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/BFBO506.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149569.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO601.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149568.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO602.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149566.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO603.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149565.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO604.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149564.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO605.sorted.bam
-mv /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/SRR19149563.sorted.bam /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/PEBO606.sorted.bam
+#!/usr/bin/env bash
 
+conv="/xdisk/mcnew/dannyjackson/sulidae/referencelists/filenameconversion.txt"
 
-
-ls /xdisk/mcnew/dannyjackson/sulidae/sortedbamfiles/*bam | sed 's/\.sorted\.bam//g' | awk 'BEGIN {FS = "/"} {print $7}' > /xdisk/mcnew/dannyjackson/sulidae/raw_sequences/filenames_samplecodes.txt
+while read -r old new; do
+  for f in ${old}*; do
+    if [[ -e "$f" ]]; then
+      newname="${f/$old/$new}"
+      mv "$f" "$newname"
+    fi
+  done
+done < "$conv"

@@ -1,86 +1,90 @@
-# call variants
-#!/bin/bash
-module load bcftools/1.19
+#!/usr/bin/env bash
+#SBATCH --job-name=callvariants
+#SBATCH --partition=standard
+#SBATCH --account=mcnew
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=64G
+#SBATCH --time=48:00:00
+#SBATCH --output=slurm_output/callvariants.%A_%a.out
+#SBATCH --mail-type=ALL
 
-ref="/xdisk/mcnew/dannyjackson/sulidae/angsd/refgenome/ncbi_dataset/data/GCF_963921805.1/GCF_963921805.1_bPhaCar2.1_genomic.fna"
-bamdir="/xdisk/mcnew/dannyjackson/sulidae/indelrealignment/"
-ID="sula"
+# LIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/allsamplecodes.txt
+# sbatch --array=1-29 callvariants.sh ${LIST}
 
-cd /xdisk/mcnew/dannyjackson/sulidae/genotype_calls
+set -euo pipefail
 
-bcftools mpileup -Ou -f "$ref" -a FORMAT/AD,DP,INFO/AD,SP "$bamdir"*.final.bam | bcftools call -mv -V indels > "$ID"_snps_multiallelic.vcf
+METHOD="samtools"
+LIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/allsamplecodes.txt
+OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/vcf
+METHOD="samtools"
+MSMCTOOLS=~/programs/msmc-tools/
 
+IND="$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')"
+GENOME=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna
+BAMDIR=/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams
+BAMFILE=${BAMDIR}/${IND}.final.bam
+CONTIGS=/xdisk/mcnew/dannyjackson/sulidae/referencelists/CONTIGS.txt
 
-sbatch --account=mcnew \
---job-name=callvariants \
---partition=standard \
---mail-type=ALL \
---output=slurm_output/output.callvariants.%j \
---nodes=1 \
---ntasks-per-node=16 \
---time=240:00:00 \
-callvariants.sh
-# Submitted batch job 12032173
+module load samtools
+module load bcftools
+module load parallel
+# Optional: module load mosdepth
 
+mkdir -p "${OUTDIR}"/{mask,vcf,tmp,logs}
+COVFILE="${OUTDIR}/coverage_samtoolsDepth_${IND}.txt"
 
+echo -e "\n$(date)  IND=${IND}\nBAM=${BAMFILE}"
 
-#filter by quality
-#!/bin/bash
+# ----- Stage data to fast local scratch -----
+SCRATCH="${TMPDIR:-/scratch/$USER/$SLURM_JOB_ID}"
+mkdir -p "$SCRATCH"
+cp -v "$BAMFILE" "${BAMFILE}.bai" "$SCRATCH/"
+cp -v "$GENOME".fai "$SCRATCH/" 2>/dev/null || true
+# faidx if needed (once)
+[ -f "${GENOME}.fai" ] || samtools faidx "$GENOME"
 
-module load bcftools/1.19
-module load vcftools/0.1.16
-module load plink/1.9
-module spider samtools/1.19.2
+LOCAL_BAM="$SCRATCH/$(basename "$BAMFILE")"
+LOCAL_BAI="${LOCAL_BAM}.bai"
 
-cd /xdisk/mcnew/dannyjackson/sulidae/datafiles/genotype_calls
+# ----- Threading strategy -----
+# bcftools mpileup/call uses threads mostly for I/O; keep small to avoid contention.
+PER_TASK_THREADS=4             # threads given to mpileup/call
+MAX_JOBS=$(( SLURM_CPUS_PER_TASK / PER_TASK_THREADS ))
+(( MAX_JOBS >= 1 )) || MAX_JOBS=1
 
-bcftools view -i 'QUAL>100' sula_snps_multiallelic.vcf > sula_qualitysort.vcf
+export GENOME LOCAL_BAM IND OUTDIR METHOD PER_TASK_THREADS
+export COVFILE
+export PATH  # so parallel workers see loaded modules
 
-#filters by depth and removes indels
-vcftools --vcf sula_qualitysort.vcf --min-meanDP 2 --max-meanDP 8 --remove-indels --recode --out sula_filtered
+# Pre-create coverage file header if you want
+: > "$COVFILE"
 
+scaffold_job() {
+  s="$1"
+  # 1) Mean coverage (fast but single-threaded; parallelization amortizes)
+  MEANCOV=$(samtools depth -r "$s" "$LOCAL_BAM" | awk '{sum+=$3} END{if(NR==0)print 0;else printf("%.6f",sum/NR)}')
+  printf "%s.%s\t%s\n" "$IND" "$s" "$MEANCOV" >> "$COVFILE"
 
-sbatch --account=mcnew \
---job-name=filtervcf \
---partition=standard \
---mail-type=ALL \
---output=slurm_output/output.filtervcf.%j \
---nodes=1 \
---ntasks-per-node=16 \
---time=40:00:00 \
-filtervcf.sh
+  MASK_IND="${OUTDIR}/mask/ind_mask.${IND}.${s}.${METHOD}.bed.gz"
+  VCF="${OUTDIR}/vcf/${IND}.${s}.${METHOD}.vcf"
 
-# Submitted batch job 3503159
+  if [ "$METHOD" = "samtools" ]; then
+    # mpileup/call with small thread count; keep output uncompressed for speed
+    bcftools mpileup -Ou -r "$s" --threads "$PER_TASK_THREADS" -f "$GENOME" "$LOCAL_BAM" \
+      | bcftools call -c --threads "$PER_TASK_THREADS" -V indels \
+      | "$MSMCTOOLS"/bamCaller.py "$MEANCOV" "$MASK_IND" > "$VCF"
+  else
+    echo "Unsupported METHOD=$METHOD" >&2
+    exit 1
+  fi
+}
 
+export -f scaffold_job
 
+echo "Starting parallel over scaffolds at $(date). Jobs: $MAX_JOBS, threads/job: $PER_TASK_THREADS"
 
-#!/bin/bash
+# GNU parallel: one scaffold per job, up to MAX_JOBS concurrent
+parallel --jobs "$MAX_JOBS" --halt soon,fail=1 --joblog "${OUTDIR}/logs/${IND}.parallel.log" \
+  scaffold_job :::: "$CONTIGS"
 
-module load bcftools/1.19
-module load vcftools/0.1.16
-module load plink/1.9
-module spider samtools/1.19.2
-
-cd /xdisk/mcnew/dannyjackson/sulidae/datafiles/genotype_calls
-
-plink --vcf sula_filtered.recode.vcf --allow-extra-chr --snps-only 'just-acgt' --geno 0.02 --mind 0.2 --maf 0.01 --recode vcf-iid --out sula_filtered_mind2
-
-cp sula_filtered_mind2.vcf sula_filtered_cleaned_zip.vcf
-
-module load samtools 
-bgzip sula_filtered_cleaned_zip.vcf
-
-bcftools index sula_filtered_cleaned_zip.vcf.gz
-
-
-sbatch --account=mcnew \
---job-name=filtervcf \
---partition=standard \
---mail-type=ALL \
---output=slurm_output/output.filtervcf.%j \
---nodes=1 \
---ntasks-per-node=16 \
---time=40:00:00 \
-filtervcf_2.sh
-
-Submitted batch job 12039087
+echo "All scaffolds done for ${IND} at $(date). Outputs in ${OUTDIR}/{mask,vcf}"
