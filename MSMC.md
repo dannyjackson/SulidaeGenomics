@@ -217,7 +217,7 @@ Rscript plotMSMC.allsamples.facet.R
 LIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/speciescodes.txt
 IND=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')
 MASK_GENOME=/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/GCA_031468815_CM062567.1.mask.150.50.bed.gz
-VCFLIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/${IND}_phasedvcfs.txt
+VCFLIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/vcfprocessing/${IND}_phasedvcfs.txt
 OUTFILE=/xdisk/mcnew/dannyjackson/sulidae/datafiles/msmc_input/species/${IND}.all.txt
 
 mkdir -p /xdisk/mcnew/dannyjackson/sulidae/datafiles/msmc_input/species/
@@ -433,3 +433,56 @@ Rscript plotMSMC.allsamples.facet.R
 
 
 ls /xdisk/mcnew/dannyjackson/sulidae/datafiles/msmc_input/species_scaffold/BFBO* | wc -l
+
+
+# Estimate divergence between species
+# BLUE FOOTED AND PERUVIAN
+BFBO PEBO
+MABO NABO
+BFBO PEBO MABO NABO
+BFBO PEBO MABO NABO BRBO
+BFBO PEBO MABO NABO BRBO RFBO
+BRBO RFBO
+
+LIST=/xdisk/mcnew/dannyjackson/sulidae/referencelists/divergencesets.txt
+ALL=/xdisk/mcnew/dannyjackson/sulidae/referencelists/allsamplecodes.txt
+
+# 1) Get the Nth line (strip CRs/extra whitespace)
+line=$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r' | xargs)
+
+# 2) Split into an array of species codes (e.g., BFBO PEBO ...)
+read -r -a codes <<< "$line"
+
+# 3) Make a label like BFBO_PEBO_MABO
+IND=$(IFS=_; printf '%s' "${codes[*]}")
+
+# 4) Build a regex that matches any of the prefixes at line start: ^(BFBO|PEBO|...)
+regex="^($(printf '%s|' "${codes[@]}" | sed 's/|$//'))"
+
+# 5) Count individuals whose sample IDs start with any of those prefixes
+#    Works whether ALL has "BFBO501" or "BFBO501 <tabs> other stuff"
+NR_IND=$(grep -E -c "$regex" "$ALL")
+
+# 6) (Optional) write out the matching sample IDs (first column) for downstream tools
+grep -E "$regex" "$ALL" | awk '{print $1}' > "${IND}.samples"
+
+# 7) Your MSMC output stem using the combined label
+MSMC_OUTPUT=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/${IND}_allchr
+
+echo "SET:         $line"
+echo "IND:         $IND"
+echo "NR_IND:      $NR_IND"
+echo "SAMPLE LIST: ${IND}.samples"
+echo "MSMC_OUTPUT: $MSMC_OUTPUT"
+
+MSMC_INPUT_FILE=/xdisk/mcnew/dannyjackson/sulidae/referencelists/${IND}_msmc_input.txt
+ls /xdisk/mcnew/dannyjackson/sulidae/datafiles/msmc_input/species_scaffold/${IND}*.txt  > ${MSMC_INPUT_FILE}
+MSMC_INPUT=`cat ${MSMC_INPUT_FILE}`
+n=$(expr ${NR_IND} + ${NR_IND} - 2)
+INDEX=$(for num in `seq 0 ${n}`; do echo -n "${num},"; done; echo $(expr ${NR_IND} + ${NR_IND} - 1))
+
+~/programs/msmc_2.0.0_linux64bit -t 32 -p 1*2+15*1+1*2 -i 100 -o /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/${IND}_allchr -I `echo $INDEX` ${MSMC_INPUT}
+
+FILES=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species
+~/programs/msmc_2.0.0_linux64bit -I `echo $INDEX` -o BFBO_PEBO --skipAmbiguous 1 \
+      $FILES/BFBO_chr*.txt $FILES/BRBO_chr*.txt

@@ -11,10 +11,11 @@ if (length(args) < 2) {
 }
 GROUP   <- args[1]
 BASEDIR <- args[2]
+KVAL <- args[3]
 
 # Paths
 grp_dir   <- file.path(BASEDIR, GROUP)
-cov_file  <- file.path(grp_dir, sprintf("genolike_pruned_%s.cov", GROUP))
+cov_file  <- file.path(grp_dir, sprintf("%s.k%s.cov", GROUP, KVAL))
 # Labels live in a referencelists dir parallel to BASEDIR (per your example)
 lab_file  <- "/xdisk/mcnew/dannyjackson/sulidae/referencelists/sample_species.%s.txt"
 lab_file  <- sprintf(lab_file, GROUP)
@@ -132,7 +133,7 @@ message("Wrote: ", out_sample)
 
 # ===== ADMIXTURE barplot =====
 # find a *.Q file for this group
-q_candidates <- Sys.glob(file.path(grp_dir, sprintf("genolike_pruned_%s.admix*.Q", GROUP)))
+q_candidates <- Sys.glob(file.path(grp_dir, sprintf("%s.k%s.admix.%s.Q", GROUP, KVAL, KVAL)))
 if (length(q_candidates) == 0L) {
   message("No admixture Q file found for group ", GROUP, "; skipping admixture plot.")
   quit(status = 0)
@@ -149,8 +150,8 @@ if (nrow(Q) != nrow(labs)) {
 ord <- seq_len(nrow(Q))
 # (If your Q is in label order, this is fine. If not, match here.)
 
-out_admix <- file.path(grp_dir, sprintf("admix_pruned_%s.pdf", GROUP))
-pdf(file = out_admix, width = 8, height = 4, family = "Helvetica")
+out_admix <- file.path(grp_dir, sprintf("%s.k%s.admix.pdf", GROUP, KVAL))
+pdf(file = out_admix, width = 4, height = 4, family = "Helvetica")
 par(mar = c(4, 4, 1, 1) + 0.1)
 barplot(t(as.matrix(Q[ord, ])),
         col = grDevices::rainbow(ncol(Q)),

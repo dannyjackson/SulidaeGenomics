@@ -149,7 +149,7 @@ source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
 
 WIN=500000
 WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
+grep 'CM' "$WIN_OUT" | grep -Ev 'CM062595|CM062599|CM062600|CM062610' > "${WIN_OUT}.chrom"
 
 # replace header (for whatever reason, it lacks a label for the fst column)
 echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
@@ -175,7 +175,7 @@ Z_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${POP1}_${POP2}.fst.${WIN}.Ztransf
 
 # Run R script for plotting
 echo "Generating Manhattan plot from ${Z_OUT}..."
-Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
+Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.p.r" \
     "${OUTDIR}" "${COLOR1}" "${COLOR2}" "${CUTOFF}" "${Z_OUT}" "${WIN}" "fst" "${POP1}" "${POP2}"
 
 echo "Script completed successfully!"
@@ -193,7 +193,7 @@ source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
 
 WIN=50000
 WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
+grep 'CM' "$WIN_OUT" | grep -Ev 'CM062595|CM062599|CM062600|CM062610' > "${WIN_OUT}.chrom"
 
 # replace header (for whatever reason, it lacks a label for the fst column)
 echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
@@ -227,8 +227,9 @@ echo "Script completed successfully!"
 
 
 # pull annotations
-module load bedtools 
-GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
+module load bedtools2
+#GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
 CANDWIN=BFBO_PEBO.fst_50000.outlier.csv
 FSTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO
 OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/BFBO_PEBO
@@ -254,9 +255,42 @@ python3 ~/programs/CardinalisGenomics/Genomics-Main/general_scripts/outlier_to_b
 
 bedtools intersect -a ${GFF} -b ${BEDFILE} -wa > ${GENEFILE}
 
-grep 'ID\=gene' ${GENEFILE} | awk '{OFS = "\t"} {split($9, arr, ";"); print(arr[1])}' | sed 's/ID\=gene\-//g' | sort -u > ${GENENAMES}
+grep 'ID\=gene' ${GENEFILE} | awk '{OFS = "\t"} {split($9, arr, ";"); print(arr[3])}' | sed 's/Name\=//g' | sort -u > ${GENENAMES}
 
+ALX1
+CABIN1
+CACNA1D
+DDT
+GSS # https://link.springer.com/article/10.1007/s00439-015-1559-0
+DNAJC8
+EYA3
+LRRIQ1
+MYOCD
+NCAM1
+PCDH7
+PCDH9
+PTAFR
 
+grep 'ID\=gene' ${GENEFILE} | awk '{print $1,$4,$9}'| awk '{OFS = "\t"} {split($3, arr, ";"); print($1, $2, arr[3])}' | sed 's/Name\=//g' 
+
+CM062568.1      41612805        PCDH9
+CM062570.1      62385350        PCDH7
+CM062571.1      38046086        ALX1
+CM062571.1      38078899        LRRIQ1
+
+CM062577.1      13630623        MYOCD
+CM062577.1      14853603        description=glutathione
+CM062577.1      14867193        DDT
+CM062577.1      14871638        CABIN1
+
+CM062580.1      16596162        CACNA1D
+CM062588.1      7406571 NCAM1
+CM062590.1      691686  DNAJC8
+CM062590.1      715580  PTAFR
+CM062590.1      724850  EYA3
+
+# MorBas
+awk '{print $1, $2, $4}' gene_window_overlaps.10kb.tsv | sort | uniq
 
 
 
@@ -278,7 +312,7 @@ source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
 
 WIN=500000
 WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
+grep 'CM' "$WIN_OUT" | grep -Ev 'CM062595|CM062599|CM062600|CM062610' > "${WIN_OUT}.chrom"
 
 # replace header (for whatever reason, it lacks a label for the fst column)
 echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
@@ -357,8 +391,10 @@ echo "Script completed successfully!"
 
 
 # pull annotations
-module load bedtools 
-GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
+module load bedtools2
+#GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
+
 CANDWIN=${sp}.fst_50000.outlier.csv
 FSTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/${sp}
 OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/${sp}
@@ -384,183 +420,5 @@ python3 ~/programs/CardinalisGenomics/Genomics-Main/general_scripts/outlier_to_b
 
 bedtools intersect -a ${GFF} -b ${BEDFILE} -wa > ${GENEFILE}
 
-grep 'ID\=gene' ${GENEFILE} | awk '{OFS = "\t"} {split($9, arr, ";"); print(arr[1])}' | sed 's/ID\=gene\-//g' | sort -u > ${GENENAMES}
-
-
-
-# SNPS
-
-~/programs/DarwinFinches/Genomics-Main/C_SelectionAnalysis/fst/fst.sh \
--p ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh \
--w 1 -s 1
-
-
-
-source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
-
-WIN=1
-WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
-
-# replace header (for whatever reason, it lacks a label for the fst column)
-echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
-
-cat ${WIN_OUT}.chrom >> "${WIN_OUT}.chrom.txt" 
-# Replace chromosome names if conversion file is provided
-if [ -n "$CHR_FILE" ]; then
-    echo "Replacing chromosome names based on conversion file..."
-    while IFS=',' read -r first second; do
-        echo "Replacing $second with $first..."
-        sed -i "s/$second/$first/g" "${WIN_OUT}.chrom.txt"
-    done < "$CHR_FILE"
-fi
-
-
-# z transform windowed data
-Rscript ~/programs/DarwinFinches/Genomics-Main/general_scripts/ztransform_windows.r \
-    "${OUTDIR}" "${CUTOFF}" "${WIN_OUT}.chrom.txt" "${WIN}" "${POP1}_${POP2}"
-
-Z_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${POP1}_${POP2}.fst.${WIN}.Ztransformed.csv"
-
-# sed -i 's/\"//g' ${Z_OUT}
-
-# Run R script for plotting
-echo "Generating Manhattan plot from ${Z_OUT}..."
-Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
-    "${OUTDIR}" "${COLOR1}" "${COLOR2}" "${CUTOFF}" "${Z_OUT}" "${WIN}" "fst" "${POP1}" "${POP2}"
-
-echo "Script completed successfully!"
-
-
-
-
-# pull annotations
-module load bedtools 
-GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
-CANDWIN=${sp}.fst_${WIN}.outlier.csv
-FSTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/${sp}
-OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/${sp}
-PREFIX=${sp}.fst_${WIN}
-
-
-BEDFILE="$OUTDIR/$PREFIX.outlier.bed"
-GENEFILE="$OUTDIR/$PREFIX.genelist.txt"
-GENENAMES="$OUTDIR/$PREFIX.genenames.txt"
-GENEMAPS="$OUTDIR/$PREFIX.genecoords.txt"
-
-# CHROM_CONVERSION=/xdisk/mcnew/dannyjackson/cardinals/referencelists/GCF_901933205_chromconversion.txt
-CHROM_CONVERSION=/xdisk/mcnew/dannyjackson/sulidae/referencelists/chromconversion.txt 
-
-python3 ~/programs/CardinalisGenomics/Genomics-Main/general_scripts/outlier_to_bed.py $FSTDIR/$PREFIX.outlier.csv ${WIN} ${BEDFILE} ${CHROM_CONVERSION}
-
-bedtools intersect -a ${GFF} -b ${BEDFILE} -wa > ${GENEFILE}
-
-grep 'ID\=gene' ${GENEFILE} | awk '{OFS = "\t"} {split($9, arr, ";"); print(arr[1])}' | sed 's/ID\=gene\-//g' | sort -u > ${GENENAMES}
-
-58029946-58048628 
-CM062568.1      58419256        58419256
-CM062568.1      58486026        58486026
-CM062568.1      58891468        58891468
-
-awk '$5 > 0.9' BFBO_PEBO.1.fst.chrom | awk '$3 > 58029946' | grep 'CM062568.1' | less
-
-awk '$3 < 58048628' BFBO_PEBO.1.fst.chrom | awk '$3 > 58029946' | grep 'CM062568.1' | sort -k5 | tail
-
-> BFBO_PEBO.1.fst.chrom.filtered
-
-################################################
-# BRBO RFBO
-################################################
-
-
-sp=( "BRBO_RFBO" )
-
-
-~/programs/DarwinFinches/Genomics-Main/C_SelectionAnalysis/fst/fst.sh \
--p ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh \
--w 500000 -s 500000
-
-
-
-
-source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
-
-WIN=500000
-WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
-
-# replace header (for whatever reason, it lacks a label for the fst column)
-echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
-
-cat ${WIN_OUT}.chrom >> "${WIN_OUT}.chrom.txt" 
-# Replace chromosome names if conversion file is provided
-if [ -n "$CHR_FILE" ]; then
-    echo "Replacing chromosome names based on conversion file..."
-    while IFS=',' read -r first second; do
-        echo "Replacing $second with $first..."
-        sed -i "s/$second/$first/g" "${WIN_OUT}.chrom.txt"
-    done < "$CHR_FILE"
-fi
-
-
-# z transform windowed data
-Rscript ~/programs/DarwinFinches/Genomics-Main/general_scripts/ztransform_windows.r \
-    "${OUTDIR}" "${CUTOFF}" "${WIN_OUT}.chrom.txt" "${WIN}" "${POP1}_${POP2}"
-
-Z_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${POP1}_${POP2}.fst.${WIN}.Ztransformed.csv"
-
-# sed -i 's/\"//g' ${Z_OUT}
-
-# Run R script for plotting
-echo "Generating Manhattan plot from ${Z_OUT}..."
-Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
-    "${OUTDIR}" "${COLOR1}" "${COLOR2}" "${CUTOFF}" "${Z_OUT}" "${WIN}" "fst" "${POP1}" "${POP2}"
-
-echo "Script completed successfully!"
-
-
-
-
-~/programs/DarwinFinches/Genomics-Main/C_SelectionAnalysis/fst/fst.sh \
--p ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh \
--w 50000 -s 10000
-
-
-
-source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
-
-WIN=50000
-WIN_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${WIN}/${POP1}_${POP2}.${WIN}.fst"
-grep 'CM' "$WIN_OUT" | grep -Ev 'CM062600|CM062610' > "${WIN_OUT}.chrom"
-
-# replace header (for whatever reason, it lacks a label for the fst column)
-echo -e 'region\tchr\tmidPos\tNsites\tfst' > "${WIN_OUT}.chrom.txt"
-
-cat ${WIN_OUT}.chrom >> "${WIN_OUT}.chrom.txt" 
-# Replace chromosome names if conversion file is provided
-if [ -n "$CHR_FILE" ]; then
-    echo "Replacing chromosome names based on conversion file..."
-    while IFS=',' read -r first second; do
-        echo "Replacing $second with $first..."
-        sed -i "s/$second/$first/g" "${WIN_OUT}.chrom.txt"
-    done < "$CHR_FILE"
-fi
-
-
-# z transform windowed data
-Rscript ~/programs/DarwinFinches/Genomics-Main/general_scripts/ztransform_windows.r \
-    "${OUTDIR}" "${CUTOFF}" "${WIN_OUT}.chrom.txt" "${WIN}" "${POP1}_${POP2}"
-
-Z_OUT="${OUTDIR}/analyses/fst/${POP1}_${POP2}/${POP1}_${POP2}.fst.${WIN}.Ztransformed.csv"
-
-# sed -i 's/\"//g' ${Z_OUT}
-
-# Run R script for plotting
-echo "Generating Manhattan plot from ${Z_OUT}..."
-Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
-    "${OUTDIR}" "${COLOR1}" "${COLOR2}" "${CUTOFF}" "${Z_OUT}" "${WIN}" "fst" "${POP1}" "${POP2}"
-
-echo "Script completed successfully!"
-
-
+grep 'ID\=gene' ${GENEFILE} | awk '{OFS = "\t"} {split($9, arr, ";"); print(arr[3])}' | sed 's/Name\=//g' | sort -u > ${GENENAMES}
 

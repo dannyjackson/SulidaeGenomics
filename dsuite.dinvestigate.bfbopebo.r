@@ -1,148 +1,6 @@
-
-
-# do it with brbo vs 4 taxa
-BFBO501 4taxa
-BFBO502 4taxa
-BFBO503 4taxa
-BFBO504 4taxa
-BFBO505 4taxa
-BRBO201 BRBO_Pacific
-BRBO202 BRBO_Pacific
-BRBO203 BRBO_AtlCar
-BRBO205 BRBO_AtlCar
-MABO302 4taxa
-MABO304 4taxa
-MABO305 4taxa
-MABO306 4taxa
-NABO402 4taxa
-NABO403 4taxa
-NABO404 4taxa
-NABO405 4taxa
-NABO406 4taxa
-PEBO601 4taxa
-PEBO603 4taxa
-PEBO604 4taxa
-PEBO605 4taxa
-PEBO606 4taxa
-RFBO101 Outgroup
-RFBO102 Outgroup
-RFBO103 Outgroup
-RFBO104 Outgroup
-RFBO105 Outgroup
-RFBO106 Outgroup
-
-echo "(((BRBO_AtlCar,BRBO_Pacific),4taxa),Outgroup);" > BRBO_4taxa.nwk
-
-#!/usr/bin/env bash
-#SBATCH --job-name=BRBO4taxa_dsuite
-#SBATCH --partition=standard
-#SBATCH --account=mcnew
-#SBATCH --cpus-per-task=12
-#SBATCH --ntasks=1
-#SBATCH --mem=100G
-#SBATCH --time=8:00:00
-#SBATCH --output=slurm_output/BRBO4taxa_dsuite.%A_%a.out
-#SBATCH --mail-type=ALL
-# sbatch BRBO4taxa_dsuite.sh
-# compiled on puma
-
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite
-# all
-mkdir -p BRBO_4taxa/
-cd BRBO_4taxa/
-
-VCF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/vcfs/Sula_MorusBassanus.qualitysort_filtered_mind2.autosomes.vcf.gz
-
-~/programs/Dsuite/Build/Dsuite Dtrios $VCF SETS.txt -t BRBO_4taxa.nwk
-
-~/programs/Dsuite/Build/Dsuite Fbranch BRBO_4taxa.nwk SETS_tree.txt > BRBO_4taxa_Fbranch.txt
-
-
-# Redo with likelihoods
-#!/usr/bin/env bash
-#SBATCH --job-name=BRBO4taxa_dsuite
-#SBATCH --partition=standard
-#SBATCH --account=mcnew
-#SBATCH --cpus-per-task=12
-#SBATCH --ntasks=1
-#SBATCH --mem=100G
-#SBATCH --time=8:00:00
-#SBATCH --output=slurm_output/BRBO4taxa_dsuite.%A_%a.out
-#SBATCH --mail-type=ALL
-# sbatch BRBO4taxa_dsuite.sh
-# compiled on puma
-
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/BRBO_4taxa_likelihoods
-
-VCF=/xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/all_likelihoods/Sula_MorusBassanus.qualitysort_filtered.autosomes.vcf.gz
-
-~/programs/Dsuite/Build/Dsuite Dtrios $VCF SETS.txt -t BRBO_4taxa.nwk --ABBAclustering -g
-~/programs/Dsuite/Build/Dsuite Fbranch BRBO_4taxa.nwk SETS_tree.txt > BRBO_4taxa_Fbranch.txt
-
-
-module load micromamba
-# micromamba create -n pyplots -c conda-forge python=3.10 matplotlib
-micromamba activate pyplots
-# micromamba install -c conda-forge pandas numpy matplotlib seaborn
-python3 ~/programs/Dsuite/utils/dtools.py BRBO_4taxa_Fbranch.txt BRBO_4taxa.nwk --tree-label-size 3 --ladderize --use_distances
-
-
-#!/usr/bin/env bash
-#SBATCH --job-name=BRBO4taxa_dinvestigate
-#SBATCH --partition=standard
-#SBATCH --account=mcnew
-#SBATCH --cpus-per-task=12
-#SBATCH --ntasks=1
-#SBATCH --mem=100G
-#SBATCH --time=20:00:00
-#SBATCH --output=slurm_output/BRBO4taxa_dinvestigate.%A_%a.out
-#SBATCH --mail-type=ALL
-# sbatch BRBO4taxa_dinvestigate.sh
-
-VCF=/xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/all_likelihoods/Sula_MorusBassanus.qualitysort_filtered.autosomes.vcf.gz
-
-echo -e 'BRBO_Pacific\tBRBO_AtlCar\t4taxa' > test_trios.txt
-~/programs/Dsuite/Build/Dsuite Dinvestigate -g -w 50,25 $VCF SETS.txt test_trios.txt
-
-gunzip /xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs/Sula_MorusBassanus.qualitysort_filtered_mind2.vcf.gz
-
-VCF=/xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs/Sula_MorusBassanus.qualitysort_filtered_mind2.vcf
-
-ruby get_fixed_site_gts.rb $VCF BRBO_4taxa.fixed.txt BRBO201,BRBO202 BFBO501,BFBO502,BFBO503,BFBO504,BFBO505,MABO302,MABO304,MABO305,MABO306,NABO402,NABO403,NABO404,NABO405,NABO406,PEBO601,PEBO603,PEBO604,PEBO605,PEBO606 BRBO203,BRBO205 1.0
-ruby plot_fixed_site_gts.rb BRBO_4taxa.fixed.txt BRBO_4taxa.fixed.svg 1.0 1000
-
-ruby get_fixed_site_gts.rb $VCF BRBO_BFBO.fixed.txt BRBO201,BRBO202 BFBO501,BFBO502,BFBO503,BFBO504,BFBO505 BRBO203,BRBO205 1.0
-ruby plot_fixed_site_gts.rb BRBO_BFBO.fixed.txt BRBO_BFBO.fixed.svg 1.0 1000
-
-ruby get_fixed_site_gts.rb $VCF BRBO_MABO.fixed.txt BRBO201,BRBO202 MABO302,MABO304,MABO305,MABO306 BRBO203,BRBO205 1.0
-ruby plot_fixed_site_gts.rb BRBO_MABO.fixed.txt BRBO_MABO.fixed.svg 1.0 1000
-
-ruby get_fixed_site_gts.rb $VCF BRBO_NABO.fixed.txt BRBO201,BRBO202 NABO402,NABO403,NABO404,NABO405,NABO406 BRBO203,BRBO205 1.0
-ruby plot_fixed_site_gts.rb BRBO_NABO.fixed.txt BRBO_NABO.fixed.svg 1.0 1000
-
-ruby get_fixed_site_gts.rb $VCF BRBO_PEBO.fixed.txt BRBO201,BRBO202 PEBO601,PEBO603,PEBO604,PEBO605,PEBO606 BRBO203,BRBO205 1.0
-ruby plot_fixed_site_gts.rb BRBO_PEBO.fixed.txt BRBO_PEBO.fixed.svg 1.0 1000
-
-
-
-
+# plot BFBO PEBO
 
 # Load packages
-.libPaths("~/R/library_elgato")
-
-library(ggplot2)
-library(dplyr)
-
-
-# Read data
-bigStep <- read.table(
-  "BRBO_Pacific_BRBO_AtlCar_4taxa_localFstats__50_25.txt",
-  header = TRUE, as.is = TRUE
-)
-
-
-# install.packages("stringr")
-
 
 library(dplyr)
 library(readr)
@@ -151,10 +9,13 @@ library(rlang)
 library(stringr)
 
 
+# install.packages("stringr")
+
+
 # -------------------------------
 # Inputs (edit if needed)
 # -------------------------------
-infile   <- "BRBO_Pacific_BRBO_AtlCar_4taxa_localFstats__50_25.txt"
+infile   <- "BFBO_GofCA_BFBO_southern_PEBO_localFstats__50_25.txt"
 convfile <- "/xdisk/mcnew/dannyjackson/sulidae/referencelists/chromconversion.txt"
 
 # Derive pop_name + window label from infile (robust to extra dots/underscores)
@@ -176,7 +37,7 @@ color1 <- "#444444"
 color2 <- "#1f78b4"
 
 # Desired chromosome order
-chromo_levels <- c(1, "1A", 2:4, "4A", 5:29, "Z") |> as.character()
+chromo_levels <- c(1:29, "Z") |> as.character()
 
 # -------------------------------
 # Read data
@@ -227,7 +88,7 @@ data <- data %>%
   # remove unwanted scaffolds explicitly
   filter(!chr %in% c("CM062595.1","CM062599.1","CM062600.1","CM062610.1")) 
 
-data$chromo <- factor(data$chromo, levels = c(1, "1A", 2:4, "4A", 5:33, "Z"))
+data$chromo <- factor(data$chromo, levels = c(1:28, 30:32, "Z"))
 # -------------------------------
 # Prepare cumulative BP coordinates (your template)
 # -------------------------------
@@ -299,7 +160,7 @@ library(readr)
 # --- choose metric + cutoff ---
 metric <- "f_dM"  # <- change if needed
 # global 99.99th percentile across all chromosomes
-fdm_cut <- quantile(plot_data[[metric]], probs = 0.9999, na.rm = TRUE)
+fdm_cut <- quantile(plot_data[[metric]], probs = 0.999, na.rm = TRUE)
 
 # flag outliers
 plot_data <- plot_data %>%
@@ -364,35 +225,248 @@ message("f_dM 99.99th percentile cutoff: ", signif(fdm_cut, 4))
 
 
 
-chromo	chr	position	BPcum	windowStart	windowEnd	D	f_d	f_dM	d_f	cutoff_used
-4	CM062570.1	76150455.5	499231318.5	76150228	76150683	0.14719	0.575061	0.55087	0.067784	0.5003591676001057
-13	CM062579.1	26413271	921799107	26412558	26413984	0.249313	0.625807	0.607195	0.105941	0.5003591676001057
-22	CM062588.1	930854.5	1065245245	920676	941033	0.524932	0.620804	0.519498	0.253805	0.5003591676001057
-22	CM062588.1	940591.5	1065254982	939221	941962	0.475157	0.626907	0.522118	0.229384	0.5003591676001057
-23	CM062589.1	292582	1073795662.5	292358	292806	0.81585	0.533434	0.516381	0.587031	0.5003591676001057
-
-
-GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
 ############################################
 # Are there genes within these signals? 
 ############################################
-# first signal of introgression
-awk '$1 == "CM062570.1" && $4 >= 76150228 && $5 <= 76150683' \
-  $GFF | grep 'ID=gene'
 
-# second signal of introgression
-awk '$1 == "CM062579.1" && $4 >= 26412558 && $5 <= 26413984' \
-  $GFF | grep 'ID=gene'
+WIN=BFBO_GofCA_BFBO_southern_PEBO.f_dM.50_25.top0.01pct.outliers.tsv
 
-# third signal of introgression
-awk '$1 == "CM062588.1" && $4 >= 920676 && $5 <= 941033' \
-  $GFF | grep 'ID=gene'
-# CM062588.1      Liftoff gene    932580  932874  .       +       .       ID=gene-LOC135317588;Dbxref=GeneID:135317588;Name=LOC135317588;description=uncharacterized LOC135317588;gbkey=Gene;gene=LOC135317588;gene_biotype=lncRNA;coverage=0.540;sequence_ID=0.470;extra_copy_number=0;copy_num_ID=gene-LOC135317588_0;low_identity=True
+awk -v FS='\t' -v OFS='\t' 'NR>1 {
+  chr=$2; ws=$5; we=$6;
+  print chr, ws-1, we, "win_"NR-1 "|" $1 "|" $3   # name keeps track of source row
+}' "$WIN" > windows.bed
 
-# fourth signal of introgression
-awk '$1 == "CM062588.1" && $4 >= 939221 && $5 <= 941962' \
-  $GFF | grep 'ID=gene'
+awk -v FS='\t' -v OFS='\t' '$3=="gene" {
+  id=""; name="";
+  n=split($9,a,";");
+  for(i=1;i<=n;i++){
+    if(a[i] ~ /^ID=/)   id=substr(a[i],4);
+    if(a[i] ~ /^Name=/) name=substr(a[i],6);
+  }
+  if(name=="") name=id;
+  print $1, $4-1, $5, name
+}' "$GFF" > genes.bed
 
-# fifth signal of introgression
-awk '$1 == "CM062589.1" && $4 >= 292358 && $5 <= 292806' \
-  $GFF | grep 'ID=gene'
+bedtools intersect -a genes.bed -b windows.bed -wa -wb > gene_window_overlaps.tsv
+
+awk '{print $4}' gene_window_overlaps.tsv | sort | uniq 
+
+
+ADCY1
+ATAD2
+bMorBas2_egapxtmp_006871
+CALB2
+CTDP1
+ENDOV
+RAB3GAP1
+RNF213
+SDR39U1
+SUGCT
+TMEM178B
+TSPAN12
+
+awk '{print $1, $2, $4}' gene_window_overlaps.tsv | sort | uniq 
+
+CM062567.1 156448684 ATAD2
+
+CM062567.1 56978546 SUGCT
+CM062567.1 62098376 ADCY1
+CM062567.1 64684597 CTDP1
+
+CM062571.1 20632758 TMEM178B
+CM062571.1 58902249 TSPAN12
+
+CM062573.1 24220053 CALB2
+
+CM062574.1 8134626 RAB3GAP1
+
+CM062576.1 37179335 SDR39U1
+CM062576.1 45884 bMorBas2_egapxtmp_006871
+
+CM062577.1 9005944 ENDOV
+CM062577.1 9018946 RNF213
+
+
+# Two genes are shared in lists between BFBO-PEBO and MABO-NABO: CTDP1 and TSPAN12
+# TSPAN12 -- involved in eye development! also TSPAN5 is assocaited with disease in frigatebirds
+
+############################################
+
+############################################
+# Are there genes nearby these signals? 10kb either
+############################################
+
+
+WIN=BFBO_GofCA_BFBO_southern_PEBO.f_dM.50_25.top0.01pct.outliers.tsv
+
+awk -v FS='\t' -v OFS='\t' 'NR>1 {
+  chr=$2; ws=$5-10000; we=$6+10000;
+  print chr, ws-1, we, "win_"NR-1 "|" $1 "|" $3   # name keeps track of source row
+}' "$WIN" > windows.10kb.bed
+
+awk -v FS='\t' -v OFS='\t' '$3=="gene" {
+  id=""; name="";
+  n=split($9,a,";");
+  for(i=1;i<=n;i++){
+    if(a[i] ~ /^ID=/)   id=substr(a[i],4);
+    if(a[i] ~ /^Name=/) name=substr(a[i],6);
+  }
+  if(name=="") name=id;
+  print $1, $4-1, $5, name
+}' "$GFF" > genes.10kb.bed
+
+bedtools intersect -a genes.10kb.bed -b windows.10kb.bed -wa -wb > gene_window_overlaps.10kb.tsv
+
+
+# MorBas
+awk '{print $4}' gene_window_overlaps.10kb.tsv | sort | uniq
+ADCY1
+ATAD2
+bMorBas2_egapxtmp_002257 # hyaluronidase PH-20-like
+bMorBas2_egapxtmp_005437 
+bMorBas2_egapxtmp_006870 # von Willebrand factor A domain-containing protein 5A-like;
+bMorBas2_egapxtmp_006871
+bMorBas2_egapxtmp_012123 # von Willebrand factor A domain-containing protein 5A
+bMorBas2_egapxtmp_012399 # olfactory receptor 6B1-like
+OR6B1
+SPAM1
+VWA5A
+CALB2
+CTDP1
+ENDOV
+GOT2
+GPR148
+GUCA2A
+MAP3K19
+NTAQ1
+PNP
+RAB3GAP1
+RNF213
+SDR39U1
+SUGCT
+TMEM178B
+TSPAN12
+WDR47
+ZHX2
+ZRANB3
+
+
+awk '{print $1, $2, $4}' gene_window_overlaps.10kb.tsv | sort | uniq
+
+
+# Chromosome 1
+CM062567.1 156307059 ZHX2
+CM062567.1 156448684 ATAD2
+CM062567.1 156486617 NTAQ1
+
+CM062567.1 56978546 SUGCT
+CM062567.1 62098376 ADCY1
+CM062567.1 64684597 CTDP1
+
+# Chromosome 5
+
+CM062571.1 20632758 TMEM178B
+CM062571.1 58902249 TSPAN12
+CM062571.1 60428194 bMorBas2_egapxtmp_002257 # hyaluronidase PH-20-like;gbkey ; SPAM1
+# Chromosome 7
+CM062573.1 24204845 GOT2
+CM062573.1 24220053 CALB2
+CM062573.1 24233618 PNP
+# Chromosome 8
+CM062574.1 43473379 bMorBas2_egapxtmp_005437
+CM062574.1 8088048 ZRANB3
+CM062574.1 8134626 RAB3GAP1
+CM062574.1 8165662 MAP3K19
+# Chromosome 10
+CM062576.1 37167312 bMorBas2_egapxtmp_006870 #  von Willebrand factor A domain-containing protein 5A-like; VWA5A
+CM062576.1 37179335 SDR39U1
+CM062576.1 45884 bMorBas2_egapxtmp_006871
+CM062576.1 54447 WDR47
+# Chromosome 11
+CM062577.1 9005944 ENDOV
+CM062577.1 9018946 RNF213
+# Chromosome 12
+CM062578.1 25668204 GPR148
+# Chromosome 21
+CM062587.1 247932 GUCA2A
+# Chromosome 25
+CM062591.1 bMorBas2_egapxtmp_012123 # von Willebrand factor A domain-containing protein 5A-like; VWA5A
+CM062591.1 bMorBas2_egapxtmp_012399 # olfactory receptor 6B1-like; OR6B1
+
+
+# lifton
+ADCY1
+ATAD2
+CALB2
+CTDP1
+ENDOV
+GOT2
+GPR148
+LOC104040817 # VWF
+VWF
+LOC104041807
+LOC104043685 # Proteins;product=olfactory receptor 6B5  OR6B5
+OR6B5
+LOC104044898
+LOC104046115 # guanylin-like GUCA2A
+GUCA2A
+LOC135310219
+LOC135311441
+LOC135311651
+LOC135315269
+LOC135317291
+LOC135317601 # zinc finger protein 572-like (ZNF572)
+ZNF572
+NTAQ1
+RAB3GAP1
+RNF213
+SDR39U1
+SPAM1
+SUGCT
+TMEM178B
+TSPAN12
+ZHX2
+ZRANB3
+
+# Chromosome 1
+CM062567.1 ADCY1
+CM062567.1 ATAD2
+CM062567.1 CTDP1
+CM062567.1 NTAQ1
+CM062567.1 SUGCT
+CM062567.1 ZHX2
+# Chromosome 5
+CM062571.1 LOC135311651
+CM062571.1 SPAM1
+CM062571.1 TMEM178B
+CM062571.1 TSPAN12
+# Chromosome 7
+CM062573.1 CALB2
+CM062573.1 GOT2
+CM062573.1 LOC104044898
+# Chromosome 8
+CM062574.1 RAB3GAP1
+CM062574.1 ZRANB3
+# Chromosome 10
+CM062576.1 LOC104041807
+CM062576.1 LOC135310219
+CM062576.1 LOC135311441
+CM062576.1 LOC135315269
+CM062576.1 LOC135317291
+CM062576.1 LOC135317601
+CM062576.1 SDR39U1
+# Chromosome 11
+CM062577.1 ENDOV
+CM062577.1 RNF213
+# Chromosome 12
+CM062578.1 GPR148
+# Chromosome 21
+CM062587.1 LOC104046115
+# Chromosome 25
+CM062591.1 LOC104040817
+CM062591.1 LOC104043685
+
+# GPR148 -- detection of smell!
+# also OR6B1
+
