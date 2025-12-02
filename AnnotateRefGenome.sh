@@ -53,6 +53,7 @@ liftoff -g $PhaCarGFF -o /xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_ann
 #SBATCH --time=1:00:00
 #SBATCH --output=slurm_output/LiftOff_MABO.%A_%a.out
 #SBATCH --mail-type=ALL
+cd /xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations
 
 REF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna # reference genome fasta
 MaskedBoobyFasta=/xdisk/mcnew/dannyjackson/sulidae/datafiles/other_ref_genomes/masked_booby/ncbi_dataset/data/GCA_013389905.1/GCA_013389905.1_ASM1338990v1_genomic.fna

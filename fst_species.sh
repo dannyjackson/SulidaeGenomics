@@ -225,6 +225,126 @@ Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
 echo "Script completed successfully!"
 
 
+# SNP analysis
+
+#!/bin/bash
+#SBATCH --job-name=fst_bfbopebo_snps
+#SBATCH --partition=standard
+#SBATCH --account=mcnew
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=94
+#SBATCH --mem=100G 
+#SBATCH --time=48:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm_output/fst_bfbopebo_snps
+
+sp=BFBO_PEBO
+FST_INDEX=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO.fst.idx
+WIN_OUT=/xdisk/mcnew/dannyjackson/sulidae//analyses/fst/BFBO_PEBO/1/BFBO_PEBO.1.fst
+
+~/programs/angsd/misc/realSFS fst stats2 "$FST_INDEX" -win 1 -step 1 -P 94 > "$WIN_OUT"
+
+awk '
+NR == 1 {
+    # print header with changed 5th column name
+    print $1, $2, $3, $4, "fst";
+    next
+}
+$5 > 0.99
+' OFS='\t' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO/1/BFBO_PEBO.1.fst \
+    > /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO/BFBO_PEBO.fixedsites
+
+awk 'NR > 1 { 
+    start = $3 - 1; 
+    end   = $3; 
+    print $2, start, end 
+}' OFS='\t' \
+/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO/BFBO_PEBO.fixedsites \
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO/BFBO_PEBO.fixedsites.bed
+
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
+
+bedtools intersect \
+    -a /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO/BFBO_PEBO.fixedsites.bed \
+    -b $GFF \
+    -wa -wb \
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO.fixedsites_in_genes.tsv
+
+wc -l /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO.fixedsites_in_genes.tsv
+
+grep 'CM' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BFBO_PEBO.fixedsites_in_genes.tsv \
+  | grep -Ev 'CM062595|CM062599|CM062600|CM062610' \
+  | grep 'ID=gene' \
+  | awk -F'\t' '{
+      OFS = "\t";
+      n = split($12, a, ";");
+      id=""; name="";
+      for (i=1; i<=n; i++) {
+        if (a[i] ~ /^gene=/) id=a[i];
+      }
+      print id;
+    }' |  awk '{FS = "="} {print $2}' | sort -u > /xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/BFBO_PEBO/BFBO_PEBO.fixedsites_in_genes.genenames.tsv
+
+
+#!/bin/bash
+#SBATCH --job-name=fst_mabonabo_snps
+#SBATCH --partition=standard
+#SBATCH --account=mcnew
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=94
+#SBATCH --mem=100G 
+#SBATCH --time=48:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --output=slurm_output/fst_mabonabo_snps
+
+sp=MABO_NABO
+FST_INDEX=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO.fst.idx
+WIN_OUT=/xdisk/mcnew/dannyjackson/sulidae//analyses/fst/MABO_NABO/1/MABO_NABO.1.fst
+
+~/programs/angsd/misc/realSFS fst stats2 "$FST_INDEX" -win 1 -step 1 -P 94 > "$WIN_OUT"
+
+awk '
+NR == 1 {
+    # print header with changed 5th column name
+    print $1, $2, $3, $4, "fst";
+    next
+}
+$5 > 0.99
+' OFS='\t' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO/1/MABO_NABO.1.fst \
+    > /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO/MABO_NABO.fixedsites
+
+
+awk 'NR > 1 { 
+    start = $3 - 1; 
+    end   = $3; 
+    print $2, start, end 
+}' OFS='\t' \
+/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO/MABO_NABO.fixedsites \
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO/MABO_NABO.fixedsites.bed
+
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
+
+bedtools intersect \
+    -a /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO/MABO_NABO.fixedsites.bed \
+    -b $GFF \
+    -wa -wb \
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO.fixedsites_in_genes.tsv
+
+wc -l /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO.fixedsites_in_genes.tsv
+
+grep 'CM' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO_NABO.fixedsites_in_genes.tsv \
+  | grep -Ev 'CM062595|CM062599|CM062600|CM062610' \
+  | grep 'ID=gene' \
+  | awk -F'\t' '{
+      OFS = "\t";
+      n = split($12, a, ";");
+      id=""; name="";
+      for (i=1; i<=n; i++) {
+        if (a[i] ~ /^gene=/) id=a[i];
+      }
+      print id;
+    }' |  awk '{FS = "="} {print $2}' | sort -u > /xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/MABO_NABO/MABO_NABO.fixedsites_in_genes.genenames.tsv
+
 
 # pull annotations
 module load bedtools2

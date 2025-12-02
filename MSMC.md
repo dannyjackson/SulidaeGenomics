@@ -84,8 +84,8 @@ IND="$(sed -n "${SLURM_ARRAY_TASK_ID}p" "$LIST" | tr -d '\r')"
 
 
 # Plot all sample MSMC results together
-Rscript plotMSMC.allsamples.R
-
+Rscript plotMSMC.allsamples.mingen.R
+Rscript plotMSMC.allsamples.maxgen.R
 library(ggplot2)
 library(dplyr)
 library(stringr)
@@ -93,7 +93,7 @@ library(readr)
 
 # Parameters
 mu <- 2.3e-09
-gen <- 7
+gen <- 25
 
 # Directory of input files
 indir <- "/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/autosomes/"
@@ -123,7 +123,7 @@ species_colors <- setNames(colorcodes$Code, colorcodes$Species)
 
 # Plot
 current_date <- format(Sys.Date(), "%m%d%y")
-outfile <- paste0("/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/plots/MSMC_all_species_", current_date, ".autosomes.pdf")
+outfile <- paste0("/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/plots/MSMC_all_species_", current_date, ".autosomes.maxgen.pdf")
 
 pdf(outfile, width = 16, height = 6)  # higher resolution and larger canvas
 
@@ -191,7 +191,7 @@ for (sp in species_list) {
     panel.grid.major = element_line(linewidth = 0.6),
   )
 
-  outfile <- file.path(outdir, paste0("MSMC_", sp, "_", stamp, ".pdf"))
+  outfile <- file.path(outdir, paste0("MSMC_", sp, "_", stamp, ".maxgen.pdf"))
   ggsave(outfile, p_sp, width = 10, height = 7, dpi = 300)
   message("Saved: ", outfile)
 }

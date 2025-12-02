@@ -1,17 +1,17 @@
-# BRBO FST
+# MABO_fst
 
 
 #!/usr/bin/env bash
-#SBATCH --job-name=SAF_BRBOatlcar
+#SBATCH --job-name=SAF_MABOatlcar
 #SBATCH --partition=standard
 #SBATCH --account=mcnew
 #SBATCH --cpus-per-task=10
 #SBATCH --ntasks=1
 #SBATCH --mem=100G
 #SBATCH --time=5:00:00
-#SBATCH --output=slurm_output/SAF_BRBOatlcar.%A_%a.out
+#SBATCH --output=slurm_output/SAF_MABOatlcar.%A_%a.out
 #SBATCH --mail-type=ALL
-# sbatch SAF_BRBOatlcar.sh
+# sbatch SAF_MABOatlcar.sh
 # compiled on puma
 
 BAMDIR=/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams # directory with bamfiles
@@ -23,9 +23,9 @@ REF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/da
 
 cd /xdisk/mcnew/dannyjackson/sulidae/datafiles/safs
 
-sp=BRBOatlcar_
-ls "${BAMDIR}/BRBO203.final.bam" > /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
-ls "${BAMDIR}/BRBO205.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
+sp=MABOatlcar
+ls "${BAMDIR}/MABO304.final.bam" > /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
+ls "${BAMDIR}/MABO305.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
 
 ~/programs/angsd/angsd -bam /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt \
     -out /xdisk/mcnew/dannyjackson/sulidae/datafiles/safs/${sp} \
@@ -33,19 +33,17 @@ ls "${BAMDIR}/BRBO205.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencel
     -anc ${REF} -sites /xdisk/mcnew/dannyjackson/sulidae/analyses/angsd_processing/allsnps_popgen.sites_headless.mafs  \
     -nThreads 1 
 
-
-
 #!/usr/bin/env bash
-#SBATCH --job-name=SAF_BRBOpac
+#SBATCH --job-name=SAF_MABOindopac
 #SBATCH --partition=standard
 #SBATCH --account=mcnew
 #SBATCH --cpus-per-task=10
 #SBATCH --ntasks=1
 #SBATCH --mem=100G
 #SBATCH --time=5:00:00
-#SBATCH --output=slurm_output/SAF_BRBOpac.%A_%a.out
+#SBATCH --output=slurm_output/SAF_MABOindopac.%A_%a.out
 #SBATCH --mail-type=ALL
-# sbatch SAF_BRBOpac.sh
+# sbatch SAF_MABOindopac.sh
 # compiled on puma
 
 BAMDIR=/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams # directory with bamfiles
@@ -57,9 +55,9 @@ REF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/da
 
 cd /xdisk/mcnew/dannyjackson/sulidae/datafiles/safs
 
-sp=BRBOpac_
-ls "${BAMDIR}/BRBO201.final.bam" > /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
-ls "${BAMDIR}/BRBO202.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
+sp=MABOindopac
+ls "${BAMDIR}/MABO302.final.bam" > /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
+ls "${BAMDIR}/MABO306.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt
 
 ~/programs/angsd/angsd -bam /xdisk/mcnew/dannyjackson/sulidae/referencelists/${sp}bams.txt \
     -out /xdisk/mcnew/dannyjackson/sulidae/datafiles/safs/${sp} \
@@ -67,41 +65,22 @@ ls "${BAMDIR}/BRBO202.final.bam" >> /xdisk/mcnew/dannyjackson/sulidae/referencel
     -anc ${REF} -sites /xdisk/mcnew/dannyjackson/sulidae/analyses/angsd_processing/allsnps_popgen.sites_headless.mafs  \
     -nThreads 1 
 
-
-
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO
-
-
-
-################################################
-# Run sliding window Fst
-################################################
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO
-
-chmod +x ~/programs/DarwinFinches/Genomics-Main/C_SelectionAnalysis/fst/fst.sh 
-
-
-
-################################################
-# BRBO
-################################################
-
 #!/usr/bin/env bash
-#SBATCH --job-name=BRBO
+#SBATCH --job-name=MABO
 #SBATCH --partition=standard
 #SBATCH --account=mcnew
 #SBATCH --cpus-per-task=12
 #SBATCH --ntasks=1
 #SBATCH --mem=100G
 #SBATCH --time=8:00:00
-#SBATCH --output=slurm_output/BRBO.%A_%a.out
+#SBATCH --output=slurm_output/MABO.%A_%a.out
 #SBATCH --mail-type=ALL
-# sbatch BRBO.sh
+# sbatch MABO.sh
 # compiled on puma
 
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO
 
-sp=( "BRBO" )
+sp=( "MABO" )
 
 ~/programs/DarwinFinches/Genomics-Main/C_SelectionAnalysis/fst/fst.sh \
 -p ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh \
@@ -112,6 +91,7 @@ sp=( "BRBO" )
 -w 1 -s 1
 
 
+sp=( "MABO" )
 
 source ~/programs/SulidaeGenomics/param_files/${sp}_params_fst.sh
 
@@ -149,16 +129,17 @@ Rscript "/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/manhattanplot.r" \
 echo "Script completed successfully!"
 
 
+# Outliers to Genes
 
 # pull annotations
-cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBOatlcar__BRBOpac_
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABOatlcar_MABOindopac
 module load bedtools2
 #GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/GCA_031468815.1_bMorBas2.PhaCar.hap2_genomic_lifted.gff
 GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
-CANDWIN=BRBOatlcar__BRBOpac_.fst_50000.outlier.csv
-FSTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBOatlcar__BRBOpac_
-OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/BRBOatlcar__BRBOpac_
-PREFIX=BRBOatlcar__BRBOpac_.fst_50000
+CANDWIN=MABOatlcar_MABOindopac.fst_50000.outlier.csv
+FSTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABOatlcar_MABOindopac
+OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/MABOatlcar_MABOindopac
+PREFIX=MABOatlcar_MABOindopac.fst_50000
 
 awk 'BEGIN {
   FPAT = "([^,]*)|(\"[^\"]+\")"  # treat quoted fields as single units
@@ -191,8 +172,6 @@ grep 'ID=gene' ${GENEFILE} \
       print id;
     }' |  awk '{FS = "="} {print $2}' | sort -u > ${GENENAMES}
 
-
-
 # SNP Analysis
 
 awk '
@@ -202,27 +181,27 @@ NR == 1 {
     next
 }
 $5 > 0.99
-' OFS='\t' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBOatlcar__BRBOpac_/1/BRBOatlcar__BRBOpac_.1.fst \
-    > /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO/BRBO.fixedsites
+' OFS='\t' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABOatlcar_MABOindopac/1/MABOatlcar_MABOindopac.1.fst \
+    > /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO/MABO.fixedsites
 
 awk 'NR > 1 { 
     start = $3 - 1; 
     end   = $3; 
     print $2, start, end 
 }' OFS='\t' \
-/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO/BRBO.fixedsites \
-> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO/BRBO.fixedsites.bed
+/xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO/MABO.fixedsites \
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO/MABO.fixedsites.bed
 
 GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
 
 bedtools intersect \
-    -a /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO/BRBO.fixedsites.bed \
+    -a /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO/MABO.fixedsites.bed \
     -b $GFF \
     -wa -wb \
-> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO.fixedsites_in_genes.tsv
+> /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO.fixedsites_in_genes.tsv
 
 
-grep 'CM' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO.fixedsites_in_genes.tsv \
+grep 'CM' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/MABO.fixedsites_in_genes.tsv \
   | grep -Ev 'CM062595|CM062599|CM062600|CM062610' \
   | grep 'ID=gene' \
   | awk -F'\t' '{
@@ -233,18 +212,6 @@ grep 'CM' /xdisk/mcnew/dannyjackson/sulidae/analyses/fst/BRBO.fixedsites_in_gene
         if (a[i] ~ /^gene=/) id=a[i];
       }
       print id;
-    }' |  awk '{FS = "="} {print $2}' | sort -u > /xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/BRBO/BRBO.fixedsites_in_genes.genenames.tsv
+    }' |  awk '{FS = "="} {print $2}' | sort -u > /xdisk/mcnew/dannyjackson/sulidae/analyses/genelist/MABO/MABO.fixedsites_in_genes.genenames.tsv
 
 
-# Really not a lot of peaks to investigate in the 50kb windows thing but one on chr 13 is interesting
-"(79219,79803)(7550188,7599906)(7550000,7600000)",13,7575000,586,0.855958,3.41696522824763,3.49946599712483
-
-echo -e "CM062579.1\t7550000\t7600000" > window.bed
-
-bedtools intersect \
-    -a window.bed \
-    -b $GFF \
-    -wa -wb 
-	
-
-/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff

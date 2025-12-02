@@ -99,4 +99,12 @@ cd /xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/MABO
 
 VCF=RFBO_MABO.autosomes.vcf.gz
 ~/programs/Dsuite/Build/Dsuite Dtrios $VCF SETS.txt -t MABO.nwk --ABBAclustering -g -n MABOtree
-~/programs/Dsuite/Build/Dsuite Fbranch MABO.nwk MABOtree_tree.txt > MABO_Fbranch.txt
+~/programs/Dsuite/Build/Dsuite Fbranch MABO.nwk SETS_MABOtree_tree.txt > MABO_Fbranch.txt
+
+
+
+module load micromamba
+# micromamba create -n pyplots -c conda-forge python=3.10 matplotlib
+micromamba activate pyplots
+# micromamba install -c conda-forge pandas numpy matplotlib seaborn
+python3 ~/programs/Dsuite/utils/dtools.py MABO_Fbranch.txt MABO.nwk --tree-label-size 3 --ladderize --use_distances

@@ -43,8 +43,23 @@ bcftools view -i 'QUAL>30' Sula_MorusBassanus_snps_multiallelic.contigs.renamed.
 #    --min-meanDP 2 --max-meanDP 8 --remove-indels --recode \
 #    --out Sula_MorusBassanus.qualitysort_filtered
 
+#!/usr/bin/env bash
+#SBATCH --job-name=filter
+#SBATCH --partition=standard
+#SBATCH --account=mcnew
+#SBATCH --cpus-per-task=2
+#SBATCH --ntasks=1
+#SBATCH --mem=100G
+#SBATCH --time=5:00:00
+#SBATCH --output=slurm_output/filter.out
+#SBATCH --mail-type=ALL
+
+module load vcftools
+
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs
+
 vcftools --vcf Sula_MorusBassanus_snps_multiallelic.contigs.qualitysort.vcf \
-    --min-meanDP 2 --max-meanDP 20 --remove-indels --recode \
+    --min-meanDP 4 --max-meanDP 20 --remove-indels --recode \
     --out Sula_MorusBassanus.qualitysort_filtered
 
 #!/usr/bin/env bash
@@ -58,6 +73,10 @@ vcftools --vcf Sula_MorusBassanus_snps_multiallelic.contigs.qualitysort.vcf \
 #SBATCH --output=slurm_output/plink_filter.%A_%a.out
 #SBATCH --mail-type=ALL
 cd /xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs
+
+module load bcftools/1.19
+module load vcftools
+module load plink
 
 plink --vcf Sula_MorusBassanus.qualitysort_filtered.recode.vcf \
     --allow-extra-chr --snps-only 'just-acgt' --geno 0.02 --mind 0.2 --maf 0.01 --recode vcf-iid \
@@ -80,6 +99,8 @@ bcftools index Sula_MorusBassanus.qualitysort_filtered_mind2.vcf.gz
 # sbatch --array=1-35 splitvcfchrom.sh 
 
 set -euo pipefail
+
+module load bcftools
 
 INDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs/
 OUTDIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/raxml_wg/vcfs/chroms/

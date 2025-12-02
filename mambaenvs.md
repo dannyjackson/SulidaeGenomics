@@ -123,6 +123,9 @@ micromamba install -c conda-forge r-qqman r-hexbin r-ggrepel r-dplyr r-RColorBre
 micromamba install -c conda-forge r-patchwork
 micromamba install -c conda-forge r-genespace
 micromamba install orthofinder
+micromamba install -c conda-forge biopython
+micromamba install -c conda-forge -c bioconda bioconductor-Gviz
+micromamba install -c conda-forge -c bioconda bioconductor-rtracklayer
 
 
 micromamba install -c conda-forge numpy

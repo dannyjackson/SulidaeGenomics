@@ -35,14 +35,14 @@ cd /xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/BRBO
 
 VCF=/xdisk/mcnew/dannyjackson/sulidae/analyses/dsuite/RFBO/RFBO_BRBO.autosomes.vcf.gz
 ~/programs/Dsuite/Build/Dsuite Dtrios $VCF SETS.txt -t BRBO.nwk --ABBAclustering -g -n BRBOtree
-~/programs/Dsuite/Build/Dsuite Fbranch BRBO_4taxa.nwk BRBOtree_tree.txt > BRBO_4taxa_Fbranch.txt
+~/programs/Dsuite/Build/Dsuite Fbranch BRBO.nwk SETS_BRBOtree_tree.txt > BRBO_Fbranch.txt
 
 
 module load micromamba
 # micromamba create -n pyplots -c conda-forge python=3.10 matplotlib
 micromamba activate pyplots
 # micromamba install -c conda-forge pandas numpy matplotlib seaborn
-python3 ~/programs/Dsuite/utils/dtools.py BRBO_4taxa_Fbranch.txt BRBO_4taxa.nwk --tree-label-size 3 --ladderize --use_distances
+python3 ~/programs/Dsuite/utils/dtools.py BRBO_Fbranch.txt BRBO.nwk --tree-label-size 3 --ladderize --use_distances
 
 # pvalue
 pvalues <- c(2.30E-16,2.30E-16,2.30E-16,2.30E-16)

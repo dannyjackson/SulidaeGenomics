@@ -1,16 +1,16 @@
 # Orthofinder
 
-##################################################
+####################################################################################################
 # Installation
-##################################################
+####################################################################################################
 cd /xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder
 
 micromamba create --name orthofinder_ocelote orthofinder
 
 
-##################################################
+####################################################################################################
 # Prepare data
-##################################################
+####################################################################################################
 micromamba activate orthofinder_ocelote
 micromamba install gffread -c bioconda
 
@@ -78,9 +78,9 @@ micromamba run -n orthofinder_ocelote \
 
 
 
-##################################################
+####################################################################################################
 # See if GENESPACE runs into the same memory issue
-##################################################
+####################################################################################################
 
 module load bedtools2 bedops minimap2
 
@@ -88,7 +88,7 @@ module load bedtools2 bedops minimap2
 GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
 FASTA=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna
 GFF2=/xdisk/mcnew/dannyjackson/sulidae/datafiles/other_ref_genomes/great_cormorant/ncbi_dataset/data/GCF_963921805.1/genomic.gff
-bedtools2
+
 
 
 awk -v FS='\t' -v OFS='\t' '$3=="mRNA" {
@@ -140,9 +140,67 @@ gpar <- run_genespace(gsParam = gpar)
 #SBATCH --output=slurm_output/genespace
 #SBATCH --mail-type=ALL
 
-module load bedtools2 bedops minimap2 micromamba
-micromamba activate r_ocelote
+module load minimap2 micromamba
 
 cd /xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder
 
-Rscript genespace.R
+micromamba run -n r_ocelote Rscript genespace.R
+
+
+####################################################################################################
+# Match gene names from bMorBas to orthologous gene names in bPhaCar
+####################################################################################################
+
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder
+
+ORTH_DIR=/xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder/files/for_genespace/results
+FILE1=${ORTH_DIR}/bMorBas2__v__bPhaCar2.tsv
+FILE2=${ORTH_DIR}/bPhaCar2__v__bMorBas2.tsv
+
+GFF=/xdisk/mcnew/dannyjackson/sulidae/datafiles/liftoff_annotations/bMorBas.EGAPx.gff
+FASTA=/xdisk/mcnew/dannyjackson/sulidae/datafiles/reference_genome/ncbi_dataset/data/GCA_031468815.1/GCA_031468815.1_bMorBas2.hap2_genomic.fna
+GFF2=/xdisk/mcnew/dannyjackson/sulidae/datafiles/other_ref_genomes/great_cormorant/ncbi_dataset/data/GCF_963921805.1/genomic.gff
+
+
+ORTH1=/xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder/files/for_genespace/orthofinder/Results_Nov18/Orthologues/bMorBas2.tsv  
+ORTH2=/xdisk/mcnew/dannyjackson/sulidae/analyses/orthofinder/files/for_genespace/orthofinder/Results_Nov18/Orthologues/bPhaCar2.tsv 
+
+
+awk -v FS='\t' -v OFS='\t' '$3=="mRNA" {
+  id=""; name="";
+  n=split($9,a,";");
+  for(i=1;i<=n;i++){
+    if(a[i] ~ /^ID=/)   id=substr(a[i],4);
+    if(a[i] ~ /^gene=/) name=substr(a[i],6);
+  }
+  if(name=="") name=id;
+  print id, name
+}' "$GFF" | sort -u > bMorBas2_genes.tsv
+
+awk -v FS='\t' -v OFS='\t' '$3=="mRNA" {
+  id=""; name="";
+  n=split($9,a,";");
+  for(i=1;i<=n;i++){
+    if(a[i] ~ /^ID=/)   id=substr(a[i],4);
+    if(a[i] ~ /^gene=/) name=substr(a[i],6);
+  }
+  if(name=="") name=id;
+  sub(/-R[0-9]+$/, "", id);   # <- strip transcript suffix
+  print id, name
+}' "$GFF" | sort -u > bMorBas2_genes.tsv
+
+awk -v FS='\t' -v OFS='\t' '$3=="CDS" {
+  id=""; name="";
+  n=split($9,a,";");
+  for(i=1;i<=n;i++){
+    if(a[i] ~ /^ID=/)   id=substr(a[i],8);
+    if(a[i] ~ /^gene=/) name=substr(a[i],6);
+  }
+  if(name=="") name=id;
+  print id, name
+}' "$GFF2" | head sort -u > bPhaCar2_genes.tsv
+
+bMorBas2_genes.tsv
+bPhaCar2_genes.tsv
+
+
