@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.BFBO501.CM062570.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.BFBO502.CM062570.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.BFBO503.CM062570.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.BFBO504.CM062570.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.BFBO505.CM062570.1.bed.gz

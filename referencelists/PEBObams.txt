@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/PEBO601.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/PEBO603.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/PEBO604.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/PEBO605.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/PEBO606.final.bam

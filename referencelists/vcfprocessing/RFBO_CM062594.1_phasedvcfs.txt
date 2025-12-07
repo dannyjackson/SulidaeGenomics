@@ -1,0 +1,6 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO101.CM062594.1.whatshap.samtools.vcf.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO102.CM062594.1.whatshap.samtools.vcf.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO103.CM062594.1.whatshap.samtools.vcf.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO104.CM062594.1.whatshap.samtools.vcf.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO105.CM062594.1.whatshap.samtools.vcf.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/phasedvcfs/renamedvcfs/RFBO106.CM062594.1.whatshap.samtools.vcf.gz

@@ -1,0 +1,6 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO101.CM062576.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO102.CM062576.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO103.CM062576.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO104.CM062576.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO105.CM062576.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.RFBO106.CM062576.1.bed.gz

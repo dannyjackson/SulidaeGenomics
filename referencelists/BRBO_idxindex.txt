@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO201.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO202.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO203.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO204.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO205.idxstats

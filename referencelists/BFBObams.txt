@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/BFBO501.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/BFBO502.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/BFBO503.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/BFBO504.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/BFBO505.final.bam

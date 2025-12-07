@@ -1,0 +1,4 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.MABO302.CM062581.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.MABO304.CM062581.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.MABO305.CM062581.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.MABO306.CM062581.1.bed.gz

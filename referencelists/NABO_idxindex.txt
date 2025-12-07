@@ -1,0 +1,6 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO401.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO402.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO403.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO404.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO405.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO406.idxstats

@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO301.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO302.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO304.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO305.idxstats
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO306.idxstats

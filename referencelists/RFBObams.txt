@@ -1,0 +1,6 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO101.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO102.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO103.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO104.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO105.final.bam
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/finalbams/RFBO106.final.bam

@@ -1,0 +1,5 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.PEBO601.CM062595.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.PEBO603.CM062595.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.PEBO604.CM062595.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.PEBO605.CM062595.1.bed.gz
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/snpable_masks/mask/ind_mask.PEBO606.CM062595.1.bed.gz

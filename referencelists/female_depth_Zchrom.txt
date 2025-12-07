@@ -1,0 +1,17 @@
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BFBO504.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO201.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO202.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/BRBO205.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO304.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/MABO306.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO402.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO403.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO405.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/NABO406.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/PEBO601.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/PEBO603.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/PEBO604.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/PEBO605.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/RFBO102.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/RFBO105.Zdepth.txt
+/xdisk/mcnew/dannyjackson/sulidae/datafiles/bamstats/sexing_by_depth/RFBO106.Zdepth.txt
