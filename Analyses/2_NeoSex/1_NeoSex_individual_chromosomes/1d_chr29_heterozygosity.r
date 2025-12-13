@@ -405,13 +405,24 @@ p4 <- ggplot(dat_snp, aes(x = BIN_START, y = SNP_COUNT,
 
 
 # --- Read your inputs (as you showed) ---
-keratin.PC <- read_tsv("../genes_chr29/keratingenes.PC.tsv", col_names = FALSE)
+
+nicastrin.PC <- read_tsv("nicastrin.PC.tsv", col_names = FALSE)
+colnames(nicastrin.PC) <- c("CHROM","gene_start","gene_end","ID","description")
+
+keratin.PC <- read_tsv("keratingenes.PC.tsv", col_names = FALSE)
 colnames(keratin.PC) <- c("CHROM","gene_start","gene_end","ID","description")
 
-isops.PC <- read_tsv("../genes_chr29/isoprenoidgenes.PC.tsv", col_names = FALSE)
+isops.PC <- read_tsv("isoprenoidgenes.PC.tsv", col_names = FALSE)
 colnames(isops.PC) <- c("CHROM","gene_start","gene_end","ID","description")
 
+cathepsin.PC <- read_tsv("cathepsin.PC.tsv", col_names = FALSE)
+colnames(cathepsin.PC) <- c("CHROM","gene_start","gene_end","ID","description")
+
 # --- Add source, compute midpoint, and build a combined df ---
+nicastrin2.PC <- nicastrin.PC %>%
+  mutate(source = "Nicastrin",
+         mid = (gene_start + gene_end)/2)
+
 keratin2.PC <- keratin.PC %>%
   mutate(source = "Keratin",
          mid = (gene_start + gene_end)/2)
@@ -420,7 +431,11 @@ isops2.PC <- isops.PC %>%
   mutate(source = "Isoprenoid",
          mid = (gene_start + gene_end)/2)
 
-genesOI.PC <- bind_rows(keratin2.PC, isops2.PC) %>%
+cathepsin2.PC <- cathepsin.PC %>%
+  mutate(source = "Cathepsin",
+         mid = (gene_start + gene_end)/2)
+
+genesOI.PC <- bind_rows(nicastrin2.PC, keratin2.PC, isops2.PC, cathepsin2.PC) %>%
   # Create a unique row label per *source* + description so rows don't collide
   mutate(desc_row = paste(source, description, sep = ": "))
 
@@ -451,7 +466,7 @@ genesPC <- genesPC %>%
     ))
 
 
-genes_p5.PC <- bind_rows(keratin2.PC, isops2.PC) %>%
+genes_p5.PC <- bind_rows(nicastrin2.PC, keratin2.PC, isops2.PC, cathepsin2.PC) %>%
   mutate(y = if_else(source == "Keratin", 0.1, 0.1))
 
 
@@ -470,7 +485,12 @@ p2.PC <- ggplot() +
     size = 2, alpha = 0.9
   ) +
   scale_color_manual(
-    values = c(Keratin = "#E377B2", Isoprenoid = "#41AB5D"),
+    values = c(
+      Keratin    = "#CC79A7",
+      Isoprenoid = "#009E73",
+      Nicastrin  = "#E69F00",
+      Cathepsin  = "#0072B2"
+    ),
     name = "Gene set"
   ) +
 
@@ -496,15 +516,25 @@ p2.PC <- ggplot() +
 
 
 # Gene Track MB
-
 # --- Read your inputs (as you showed) ---
-keratin.MB <- read_tsv("../genes_chr29/keratingenes.MB.tsv", col_names = FALSE)
+
+nicastrin.MB <- read_tsv("nicastrin.MB.tsv", col_names = FALSE)
+colnames(nicastrin.MB) <- c("CHROM","gene_start","gene_end","ID","description")
+
+keratin.MB <- read_tsv("keratingenes.MB.tsv", col_names = FALSE)
 colnames(keratin.MB) <- c("CHROM","gene_start","gene_end","ID","description")
 
-isops.MB <- read_tsv("../genes_chr29/isoprenoidgenes.MB.tsv", col_names = FALSE)
+isops.MB <- read_tsv("isoprenoidgenes.MB.tsv", col_names = FALSE)
 colnames(isops.MB) <- c("CHROM","gene_start","gene_end","ID","description")
 
+cathepsin.MB <- read_tsv("cathepsin.MB.tsv", col_names = FALSE)
+colnames(cathepsin.MB) <- c("CHROM","gene_start","gene_end","ID","description")
+
 # --- Add source, compute midpoint, and build a combined df ---
+nicastrin2.MB <- nicastrin.MB %>%
+  mutate(source = "Nicastrin",
+         mid = (gene_start + gene_end)/2)
+
 keratin2.MB <- keratin.MB %>%
   mutate(source = "Keratin",
          mid = (gene_start + gene_end)/2)
@@ -513,7 +543,11 @@ isops2.MB <- isops.MB %>%
   mutate(source = "Isoprenoid",
          mid = (gene_start + gene_end)/2)
 
-genesOI.MB <- bind_rows(keratin2.MB, isops2.MB) %>%
+cathepsin2.MB <- cathepsin.MB %>%
+  mutate(source = "Cathepsin",
+         mid = (gene_start + gene_end)/2)
+
+genesOI.MB <- bind_rows(nicastrin2.MB, keratin2.MB, isops2.MB, cathepsin2.MB) %>%
   # Create a unique row label per *source* + description so rows don't collide
   mutate(desc_row = paste(source, description, sep = ": "))
 
@@ -532,7 +566,7 @@ genesOI.MB <- genesOI.MB %>%
 
 # combine p5 and p2 
 
-# Gene track PC
+# Gene track MB
 
 genesMB <- genesMB %>%
   arrange(start) %>%
@@ -544,9 +578,9 @@ genesMB <- genesMB %>%
     ))
 
 
-
-genes_p5.MB <- bind_rows(keratin2.MB, isops2.MB) %>%
+genes_p5.MB <- bind_rows(nicastrin2.MB, keratin2.MB, isops2.MB, cathepsin2.MB) %>%
   mutate(y = if_else(source == "Keratin", 0.1, 0.1))
+
 
 p2.MB <- ggplot() +
   # --- Gene rectangles (from p2) ---
@@ -563,7 +597,12 @@ p2.MB <- ggplot() +
     size = 2, alpha = 0.9
   ) +
   scale_color_manual(
-    values = c(Keratin = "#E377B2", Isoprenoid = "#41AB5D"),
+    values = c(
+      Keratin    = "#CC79A7",
+      Isoprenoid = "#009E73",
+      Nicastrin  = "#E69F00",
+      Cathepsin  = "#0072B2"
+    ),
     name = "Gene set"
   ) +
 
@@ -576,7 +615,7 @@ p2.MB <- ggplot() +
 
   # --- Labels and theme ---
   labs(
-    y = "Strand",
+    y = NULL,
     x = NULL
   ) +
   theme_bw(base_size = 16) +
@@ -585,7 +624,7 @@ p2.MB <- ggplot() +
     legend.position = "right",
     axis.text.x = element_blank()
   ) +
-  annotate("text", x = 0.03 * xmax, y = max(genesMB$y) * 0.95, label = "E.")
+  annotate("text", x = 0.03 * xmax, y = max(genesMB$y) * 0.95, label = "D.")
 
 # RE Track
 

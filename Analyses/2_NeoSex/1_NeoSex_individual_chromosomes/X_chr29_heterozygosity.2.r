@@ -111,6 +111,7 @@ p <- ggplot(hets_sex,
 
 
 ggsave(paste0(OUT, ".hets_50kb.pdf"), p, width = 12, height = 3, dpi = 300)
+ggsave(paste0(OUT, ".hets_50kb.png"), p, width = 12, height = 3, dpi = 300)
 
 # plot colored as individual
 
@@ -132,6 +133,7 @@ p <- ggplot(hets_sex,
 
 
 ggsave(paste0(OUT, ".hets_50kb.individual.pdf"), p, width = 12, height = 3, dpi = 300)
+ggsave(paste0(OUT, ".hets_50kb.individual.png"), p, width = 12, height = 3, dpi = 300)
 
 library(patchwork)
 
@@ -154,3 +156,4 @@ plots_facets <- hets_f %>%
 
 wrap_plots(plots_facets, ncol = 1)
 ggsave(paste0(OUT, ".hets_50kb.faceted.pdf"), width = 12, height = 8, dpi = 300)
+ggsave(paste0(OUT, ".hets_50kb.faceted.png"), width = 12, height = 8, dpi = 300)
