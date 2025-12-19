@@ -69,6 +69,8 @@ depth_sex <- depth_sex %>%
 # Ensure chrom is character
 depth_sex <- depth_sex %>% mutate(chrom_num = as.character(chrom_num))
 
+# write out full table
+write.csv(depth_sex, "normalized_depth_all_chromosomes.csv", quote = FALSE, row.names = FALSE)
 
 # Compute desired factor levels once
 lev_base   <- str_sort(unique(depth_sex$chrom_num), numeric = TRUE)
