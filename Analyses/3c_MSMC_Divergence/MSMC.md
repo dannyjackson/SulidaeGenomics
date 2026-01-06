@@ -404,6 +404,20 @@ cd /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species
 
 sbatch MSMC_BFBO_PEBO.sh
 
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/inferring_split_times
+
+COMBINED="/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/BFBO_PEBO_allchr.final.txt"
+POP1=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/BFBO_allchr.final.txt
+POP2=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/PEBO_allchr.final.txt
+
+python3 ~/programs/msmc-tools/combineCrossCoal.py \
+    ${COMBINED} \
+    ${POP1} \
+    ${POP2} > BFBO_PEBO.final.txt
+
+
+
+
 # Next run MABO NABO
 cat /xdisk/mcnew/dannyjackson/sulidae/referencelists/MABO_msmc_input.txt >  /xdisk/mcnew/dannyjackson/sulidae/referencelists/MABO_NABO_msmc_input.txt 
 cat /xdisk/mcnew/dannyjackson/sulidae/referencelists/NABO_msmc_input.txt >>  /xdisk/mcnew/dannyjackson/sulidae/referencelists/MABO_NABO_msmc_input.txt 
@@ -444,3 +458,16 @@ cd /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species
 ~/programs/msmc_2.0.0_linux64bit -t "${SLURM_CPUS_PER_TASK}" -p 1*2+15*1+1*2 -i 100 -o /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/MABO_NABO_allchr -I 0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1 `cat /xdisk/mcnew/dannyjackson/sulidae/referencelists/MABO_NABO_msmc_input.txt`
 
 sbatch MSMC_MABO_NABO.sh
+
+
+
+cd /xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/inferring_split_times
+
+COMBINED="/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/MABO_NABO_allchr.final.txt"
+POP1=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/MABO_allchr.final.txt
+POP2=/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/NABO_allchr.final.txt
+
+python3 ~/programs/msmc-tools/combineCrossCoal.py \
+    ${COMBINED} \
+    ${POP1} \
+    ${POP2} > MABO_NABO.final.txt
