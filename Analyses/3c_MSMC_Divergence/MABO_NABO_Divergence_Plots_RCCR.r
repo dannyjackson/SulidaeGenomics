@@ -1,9 +1,11 @@
 library(ggplot2)
 library(dplyr)
 
+setwd("/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/inferring_split_times")
+
 data <- read.table("MABO_NABO.final.txt", header = TRUE)
 
-mu <- 1.913e-9
+mu <- 1.91e-9
 
 # Compute RCCR once (independent of generation time)
 df_base <- data %>%
@@ -90,7 +92,7 @@ library(dplyr)
 
 data <- read.table("MABO_NABO.final.txt", header = TRUE)
 
-mu  <- 1.913e-9
+mu  <- 1.91e-9
 gen <- 13
 
 df <- data %>%

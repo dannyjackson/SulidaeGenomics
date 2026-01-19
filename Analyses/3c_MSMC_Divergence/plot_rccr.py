@@ -2,7 +2,7 @@
 # Usage:
 #   python3 plot_rccr.py BRBO201_BRBO202
 # Optional args:
-#   --mu 1.913e-9           # mutation rate per site per generation
+#   --mu 1.91e-9           # mutation rate per site per generation
 #   --g 14.11               # years per generation
 #   --results-dir results   # directory for MSMC2 outputs
 #   --outdir .              # where to write TSV/CSV/PNG
@@ -50,7 +50,7 @@ def thresholds_from_years(df_years, g):
 def main():
     ap = argparse.ArgumentParser(description="Compute and plot MSMC2 rCCR + thresholds for a pair.")
     ap.add_argument("pair", help="Pair ID, e.g. BRBO201_BRBO202")
-    ap.add_argument("--mu", type=float, default=1.913e-9, help="Mutation rate per site per generation")
+    ap.add_argument("--mu", type=float, default=1.91e-9, help="Mutation rate per site per generation")
     ap.add_argument("--g", type=float, default=14.11, help="Generation time (years)")
     ap.add_argument("--results-dir", default="results", help="Directory with MSMC2 outputs")
     ap.add_argument("--outdir", default=".", help="Output directory for TSV/CSV/PNG")

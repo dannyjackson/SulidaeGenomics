@@ -5,7 +5,6 @@
 # BFBO_MABO
 # BFBO_PEBO
 # MABO_NABO # results/MABO305_NABO402_.msmc2.final.txt
-
 # Parameters
 mu  <- 1.913e-9
 gen <- 8

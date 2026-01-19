@@ -269,7 +269,7 @@ tr <- read.beast("sp.MCC.tree")
 # Make sure annotations (incl. height) are attached to the ggtree data:
 ann <- as.data.frame(tr)
 
-mu <- 1.913e-9   # subs/site/generation
+mu <- 1.91e-9   # subs/site/generation
 g  <- 8          # years/generation (example)
 
 node_age_years <- node_age / mu * g
