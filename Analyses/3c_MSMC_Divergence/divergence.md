@@ -122,7 +122,7 @@ echo IND2: $IND2
 ~/programs/msmc-tools/combineCrossCoal.py "${OUT_DIR}/${IND1}_${IND2}.final.txt" "${BASE}/${SPECIES1}/results/${IND1}.CM062567.final.txt" \
     "${BASE}/${SPECIES2}/results/${IND2}.CM062567.final.txt" > "${OUT_DIR}/${IND1}_${IND2}.msmc2.final.txt"
 
-python3 ~/programs/MSMC-IM/MSMC_IM.py -o ${BASE}/${COMPARISON}/MSMC-IM/${IND1}_${IND2} -p 1*2+15*1+1*2 -mu 1.913e-9 "${OUT_DIR}/${IND1}_${IND2}.msmc2.final.txt" --printfittingdetails --plotfittingdetails
+python3 ~/programs/MSMC-IM/MSMC_IM.py -o ${BASE}/${COMPARISON}/MSMC-IM/${IND1}_${IND2} -p 1*2+15*1+1*2 -mu 1.91e-9 "${OUT_DIR}/${IND1}_${IND2}.msmc2.final.txt" --printfittingdetails --plotfittingdetails
 
 done < "$LIST"
 
@@ -173,7 +173,7 @@ echo IND1: $IND1
 echo IND2: $IND2
 
 
-python3 ~/programs/MSMC-IM/MSMC_IM.py -o ${BASE}/${COMPARISON}/MSMC-IM/${IND1}_${IND2} -p 1*2+15*1+1*2 -mu 1.913e-9 "${OUT_DIR}/${IND1}_${IND2}.msmc2.final.txt" --printfittingdetails --plotfittingdetails
+python3 ~/programs/MSMC-IM/MSMC_IM.py -o ${BASE}/${COMPARISON}/MSMC-IM/${IND1}_${IND2} -p 1*2+15*1+1*2 -mu 1.91e-9 "${OUT_DIR}/${IND1}_${IND2}.msmc2.final.txt" --printfittingdetails --plotfittingdetails
 
 
 done < "$LIST"

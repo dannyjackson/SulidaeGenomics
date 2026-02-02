@@ -6,7 +6,7 @@ setwd("/xdisk/mcnew/dannyjackson/sulidae/analyses/msmc/files/species/inferring_s
 
 data <- read.table("BFBO_PEBO.final.txt", header = TRUE)
 
-mu <- 1.913e-9
+mu <- 1.91e-9
 
 # Compute RCCR once (independent of generation time)
 df_base <- data %>%

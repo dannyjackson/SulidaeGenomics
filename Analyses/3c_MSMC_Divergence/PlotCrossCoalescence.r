@@ -36,7 +36,7 @@ for (f in files) {
 
 dev.off()
 
-mu  <- 1.913e-9
+mu  <- 1.91e-9
 gen <- 18
 
 # Output file
@@ -69,7 +69,7 @@ dev.off()
 ####################################################
 # Color by first reference taxa
 # Parameters
-mu  <- 1.913e-9
+mu  <- 1.91e-9
 gen <- 14.11
 
 # Output file
@@ -118,7 +118,7 @@ dev.off()
 # Color by second reference taxa
 # Parameters
 # Parameters
-mu  <- 1.913e-9
+mu  <- 1.91e-9
 gen <- 14.11
 
 # Output file

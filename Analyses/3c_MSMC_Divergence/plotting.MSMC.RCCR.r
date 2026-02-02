@@ -6,7 +6,7 @@
 ####################################################
 
 # Params you may tweak
-mu  <- 1.913e-9
+mu  <- 1.91e-9
 gen <- 14.11
 results_dir <- "results"  # folder containing *.msmc2.final.txt
 xlim_years  <- c(1e6, 1e7) # or set to NULL for auto
