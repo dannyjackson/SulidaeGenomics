@@ -51,6 +51,43 @@ het_full <- het_full %>%
     sex = factor(sex, levels = c("Female", "Male", "Unknown"))
   )
   
+# --- Test Female vs Male H_O difference per chromosome ---
+# Wilcoxon rank-sum is robust for small/non-normal distributions.
+# Switch wilcox.test -> t.test below if you specifically want a t-test.
+
+sex_tests <- het_full %>%
+  filter(sex %in% c("Female", "Male"), !is.na(H_O), !is.na(chrom_num)) %>%
+  group_by(chrom_num) %>%
+  filter(n_distinct(sex) == 2) %>%   # require both sexes present
+  summarise(
+    n_female = sum(sex == "Female"),
+    n_male   = sum(sex == "Male"),
+    p_value = if_else(
+      n_female >= 2 & n_male >= 2,
+      wilcox.test(H_O ~ sex, exact = FALSE)$p.value,
+      NA_real_
+    ),
+    y_pos = max(H_O, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    p_adj = p.adjust(p_value, method = "BH"),
+    sig = case_when(
+      is.na(p_adj) ~ "",
+      p_adj < 0.001 ~ "***",
+      p_adj < 0.01  ~ "**",
+      p_adj < 0.05  ~ "*",
+      TRUE ~ ""
+    )
+  ) %>%
+  filter(sig != "")
+
+# Put asterisks slightly above each chromosome's max H_O
+y_range <- range(het_full$H_O, na.rm = TRUE)
+y_pad   <- diff(y_range) * 0.08
+
+sex_tests <- sex_tests %>%
+  mutate(y_pos = y_pos + y_pad)
 
 # --- Plot: chromosomes on x-axis, violins by sex ---
 pd <- position_dodge(width = 0.8)
@@ -60,7 +97,15 @@ gg <- ggplot(het_full, aes(x = chrom_num, y = H_O, fill = sex)) +
   stat_summary(fun = median, geom = "point", position = pd, shape = 95, size = 5, color = "black") +
   geom_point(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
              alpha = 0.25, size = 0.6, stroke = 0) +
+  geom_text(
+    data = sex_tests,
+    aes(x = chrom_num, y = y_pos, label = sig),
+    inherit.aes = FALSE,
+    size = 6,
+    vjust = 0
+  ) +
   scale_fill_manual(values = c(Female="#E26D5A", Male="#4F7CAC", Unknown="grey70")) +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.18))) +
   labs(
     x = "Chromosome",
     y = NULL
@@ -72,10 +117,40 @@ gg <- ggplot(het_full, aes(x = chrom_num, y = H_O, fill = sex)) +
     legend.position = "none"
   )
 
-
 # --- Save ---
 ggsave("heterozygosity_by_chromosome.sex.pdf", gg, width = 12, height = 3, dpi = 300)
 
+# --- Save sex-difference test results ---
+sex_tests_out <- het_full %>%
+  filter(sex %in% c("Female", "Male"), !is.na(H_O), !is.na(chrom_num)) %>%
+  group_by(chrom_num) %>%
+  filter(n_distinct(sex) == 2) %>%
+  summarise(
+    n_female = sum(sex == "Female"),
+    n_male   = sum(sex == "Male"),
+    median_female = median(H_O[sex == "Female"], na.rm = TRUE),
+    median_male   = median(H_O[sex == "Male"], na.rm = TRUE),
+    mean_female   = mean(H_O[sex == "Female"], na.rm = TRUE),
+    mean_male     = mean(H_O[sex == "Male"], na.rm = TRUE),
+    p_value = if_else(
+      n_female >= 2 & n_male >= 2,
+      wilcox.test(H_O ~ sex, exact = FALSE)$p.value,
+      NA_real_
+    ),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    p_adj = p.adjust(p_value, method = "BH"),
+    sig = case_when(
+      is.na(p_adj) ~ "",
+      p_adj < 0.001 ~ "***",
+      p_adj < 0.01  ~ "**",
+      p_adj < 0.05  ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+write_csv(sex_tests_out, "heterozygosity_by_chromosome.sex_tests.csv")
 
 het_full <- het_full %>%
   mutate(species = str_extract(IND, "^[A-Z]{4}"))

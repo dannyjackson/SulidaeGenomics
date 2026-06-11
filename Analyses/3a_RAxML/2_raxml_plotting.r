@@ -204,7 +204,7 @@ plots <- Map(function(tr, panel_num, subtitle_txt) {
 
   p + labs(
       title    = if (panel_num == 34) "Chromosome Z" else paste("Chromosome", panel_num),
-      subtitle = paste("Number of sites:", subtitle_txt)
+      subtitle = paste("# sites:", subtitle_txt)
     ) +
   scale_color_manual(values = pal, breaks = species_levels, name = "Species") +
   theme(
@@ -226,7 +226,7 @@ guides_vertical <- guides(
 )
 
 
-ncol <- 5
+ncol <- 8
 nr <- ceiling(length(plots) / ncol)
 nslots <- nr * ncol
 nempty <- nslots - length(plots)
@@ -298,7 +298,7 @@ print(grid)
 dev.off()
 
 ggsave("chromosome_trees_grid.rooted.colored_digits.legend_sites.png",
-       grid, width = 7, height = 10, dpi = 300)
+       grid, width = 8, height = 11, dpi = 300)
 
     
 
