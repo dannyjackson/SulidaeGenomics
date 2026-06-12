@@ -79,6 +79,40 @@ lev_order  <- c(setdiff(lev_base, specials),
                 specials[specials %in% lev_base])   # push specials to the end (if present)
 
 
+# --- Test Female vs Male normalized depth difference per chromosome ---
+depth_tests_out <- depth_sex %>%
+  filter(sex %in% c("Female", "Male"), !is.na(norm_depth), !is.na(chrom)) %>%
+  group_by(chrom) %>%
+  filter(n_distinct(sex) == 2) %>%
+  summarise(
+    n_female = sum(sex == "Female"),
+    n_male   = sum(sex == "Male"),
+    median_female = median(norm_depth[sex == "Female"], na.rm = TRUE),
+    median_male   = median(norm_depth[sex == "Male"], na.rm = TRUE),
+    mean_female   = mean(norm_depth[sex == "Female"], na.rm = TRUE),
+    mean_male     = mean(norm_depth[sex == "Male"], na.rm = TRUE),
+    p_value = if_else(
+      n_female >= 2 & n_male >= 2,
+      wilcox.test(norm_depth ~ sex, exact = FALSE)$p.value,
+      NA_real_
+    ),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    p_adj = p.adjust(p_value, method = "BH"),
+    sig = case_when(
+      is.na(p_adj) ~ "",
+      p_adj < 0.001 ~ "***",
+      p_adj < 0.01  ~ "**",
+      p_adj < 0.05  ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+# write test results to CSV
+write_csv(depth_tests_out, "normalized_depth_by_chromosome.sex_tests.csv")
+
+
 # Apply levels
 depth_sex <- depth_sex %>%
   mutate(
@@ -96,6 +130,55 @@ ggplot(depth_sex, aes(x = chrom_num, y = norm_depth, color = individual)) +
 ggsave("normalized_depth_plot_ind.png", width = 12, height = 6)
 
 
+
+# --- Test Female vs Male normalized depth difference per chromosome ---
+depth_tests_out <- depth_sex %>%
+  filter(sex %in% c("Female", "Male"), !is.na(norm_depth), !is.na(chrom_num)) %>%
+  group_by(chrom_num) %>%
+  filter(n_distinct(sex) == 2) %>%
+  summarise(
+    n_female = sum(sex == "Female"),
+    n_male   = sum(sex == "Male"),
+    median_female = median(norm_depth[sex == "Female"], na.rm = TRUE),
+    median_male   = median(norm_depth[sex == "Male"], na.rm = TRUE),
+    mean_female   = mean(norm_depth[sex == "Female"], na.rm = TRUE),
+    mean_male     = mean(norm_depth[sex == "Male"], na.rm = TRUE),
+    p_value = if_else(
+      n_female >= 2 & n_male >= 2,
+      wilcox.test(norm_depth ~ sex, exact = FALSE)$p.value,
+      NA_real_
+    ),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    p_adj = p.adjust(p_value, method = "BH"),
+    sig = case_when(
+      is.na(p_adj) ~ "",
+      p_adj < 0.001 ~ "***",
+      p_adj < 0.01  ~ "**",
+      p_adj < 0.05  ~ "*",
+      TRUE ~ ""
+    )
+  )
+
+# write test results to CSV
+write_csv(depth_tests_out, "normalized_depth_by_chromosome.sex_tests.csv")
+
+# --- Make asterisk positions for significant chromosomes ---
+y_range <- range(depth_sex$norm_depth, na.rm = TRUE)
+y_pad   <- diff(y_range) * 0.08
+
+depth_tests_sig <- depth_tests_out %>%
+  filter(sig != "") %>%
+  left_join(
+    depth_sex %>%
+      group_by(chrom_num) %>%
+      summarise(y_pos = max(norm_depth, na.rm = TRUE), .groups = "drop"),
+    by = "chrom_num"
+  ) %>%
+  mutate(y_pos = y_pos + y_pad)
+
+
 # --- Plot: chromosomes on x-axis, violins by sex ---
 
 pd <- position_dodge(width = 0.8)
@@ -105,6 +188,13 @@ gg <- ggplot(depth_sex, aes(x = chrom_num, y = norm_depth, fill = sex)) +
   stat_summary(fun = median, geom = "point", position = pd, shape = 95, size = 5, color = "black") +
   geom_point(position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
              alpha = 0.25, size = 0.6, stroke = 0) +
+  geom_text(
+    data = depth_tests_sig,
+    aes(x = chrom_num, y = y_pos, label = sig),
+    inherit.aes = FALSE,
+    size = 6,
+    vjust = 0
+  ) +
   scale_fill_manual(values = c(Female="#E26D5A", Male="#4F7CAC", Unknown="grey70")) +
   labs(
     x = "Chromosome",
@@ -117,6 +207,9 @@ gg <- ggplot(depth_sex, aes(x = chrom_num, y = norm_depth, fill = sex)) +
   )
 
 ggsave("normalized_depth_plot.sex.pdf", width = 12, height = 3)
+
+
+
 
 depth_sex <- depth_sex %>%
   mutate(species = str_extract(individual, "^[A-Z]{4}"))
